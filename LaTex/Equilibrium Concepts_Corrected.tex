@@ -1,0 +1,241 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{ amssymb }
+
+
+% remove spacing around date:
+\usepackage{titling}
+\predate{}
+\postdate{}
+
+\author{}
+\title{Appendix}
+\date{} % clear date
+
+
+
+\begin{document}
+\maketitle
+
+\section{Equilibrium Concepts}
+
+\subsection{Scenario 1}
+
+The first possible scenario is $$[(rrr)(dd\_)(d\_\_)]$$
+R wins the first district and D wins the second district for sure. For the last district, we need to calculate the probilitity each player wins.
+\\The probability d wins the third district is: 
+\begin{equation}
+p_d = \frac{e_d^2+2e_re_d}{(e_d+e_r)^2}
+\end{equation}
+The expected payoff of a player d is:
+\begin{equation}
+E\pi_d= p_dv-e_d = \frac{e_d^2+2e_re_d}{(e_d+e_r)^2} v-e_d
+\end{equation}
+The standard modelling approach is to maximize (2) with respect to player d's effort, which yields the first-order condition: 
+\begin{equation}
+\frac{2e_r^2}{(e_d+e_r)^3}v-1=0
+\end{equation}
+Similarly, the probability r wins the third district is:
+\begin{equation} 
+p_r =\frac{e_r^2}{(e_d+e_r)^2}
+\end{equation}
+The expected payoff of r is: 
+\begin{equation} 
+E\pi_r= p_rv-e_r= \frac{e_r^2}{(e_d+e_r)^2} v-e_r
+\end{equation}
+The standard modelling approach is to maximize (5) with respect to player r's effort, which yields the first-order condition: 
+\begin{equation} 
+\frac{2e_re_d}{(e_d+e_r)^2}v-1=0
+\end{equation}
+Assuming an interior solution, the Nash equilibrium outcome is attained by solving (3) and (6) simultaneously for $e_d$ and $e_r$. This equilibrium is: 
+\begin{eqnarray} 
+\frac{2e_r^2}{(e_d+e_r)^3} = \frac{2e_re_d}{(e_d+e_r)^2} \\
+e_d=e_r
+\end{eqnarray}
+Since $e_d$=$e_r$=e, the likelihood of d or r wins the third district is $\frac{3}{4}$ and $\frac{1}{4}$ respectively and the equilibrium level of effort is $e_d$=$e_r$=$\frac{1}{4}$v.
+The corresponding expected payoff of d and r are $\frac{1}{2}$v and 0 respectively. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Scenario 2}
+The second possible scenario is $$[(rr\_)(dd\_)(dr\_)]$$
+R wins the first district and D wins the second district for sure. We need to solve for the probilitity each player wins, but notice that both player has an advantage so it will be symmetric.
+\\The probability d wins the third district is: 
+\begin{equation}
+p_d = \frac{e_d}{(e_d+e_r)}
+\end{equation}
+The expected payoff of a player d is:
+\begin{equation}
+E\pi_d = p_dv-e_d= \frac{e_d}{(e_d+e_r)}v-e_d
+\end{equation}
+The standard modelling approach is to maximize (10) with respect to player d's effort, which yields the first-order condition: 
+\begin{equation}
+\frac{e_r}{(e_d+e_r)^2}v-1=0
+\end{equation}
+Assuming an interior solution, the Nash equilibrium outcome is attained by solving (11) simultaneously for $e_d$ and $e_r$. This equilibrium is: 
+\begin{eqnarray} 
+\frac{e_r}{(e_d+e_r)^2} = \frac{e_d}{(e_d+e_r)^2} \\
+e_d=e_r
+\end{eqnarray}
+Since $e_d$=$e_r$=e, the likelihood of d or r wins the third district is $\frac{1}{2}$ and the equilibrium level of effort is $e_d$=$e_r$=$\frac{1}{4}$v.
+The corresponding expected payoff of d and r are $\frac{1}{4}$v. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Scenario 3}
+The third possible scenario is: $$[(rrr)(ddd)(\_\_\_)]$$
+R wins the first district and D wins the second district for sure. We need to solve for the probability each player wins, but no player has an advantage on the third district so it will be symmetric.
+\\The probability d wins the third district is: 
+\begin{equation}
+p_d = \frac{e_d^3+3e_d^2e_r}{(e_d+e_r)^3}
+\end{equation}
+The expected payoff of a player d is:
+\begin{equation}
+E\pi_d = p_dv-e_d= \frac{e_d^3+3e_d^2e_r}{(e_d+e_r)^3}v-e_d
+\end{equation}
+The standard modelling approach is to maximize (15) with respect to player d's effort, which yields the first-order condition: 
+\begin{equation}
+\frac{6e_de_r^2}{(e_d+e_r)^4}v-1=0
+\end{equation}
+Assuming an interior solution, the Nash equilibrium outcome is attained by solving (16) simultaneously for $e_d$ and $e_r$. This equilibrium is: 
+\begin{eqnarray} 
+\frac{6e_de_r^2}{(e_d+e_r)^4} = \frac{6e_d^2e_r}{(e_d+e_r)^4} \\
+e_d=e_r
+\end{eqnarray}
+Since $e_d$=$e_r$=e, the likelihood of d or r wins the third district is $\frac{1}{2}$ and the equilibrium level of effort is $e_d$=$e_r$=$\frac{3}{8}$v.
+The corresponding expected payoff of d and r are $\frac{1}{8}$v. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Scenario 4}
+The fourth possible scenario is: $$[(rd\_)(rd\_)(rd\_)]$$
+No player has an advantage in any district.
+\\The probability d wins all three districts or at least two districts is: 
+\begin{equation}
+p_d = p_1p_2p_3+p_1p_2(1-p_3)+p_1(1-p_2)p_3+(1-p_1)p_2p_3
+\end{equation}
+
+\noindent For simplification, define 
+
+\begin{gather*} 
+\theta(\cdot) =  (e_{d,1}+e_{r,1})(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3}) \\ \text{and} \\
+\phi(\cdot) = e_{d,1}e_{d,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3} + e_{d,1}e_{r,2}e_{d,3} + e_{r,1}e_{d,2}e_{d,3}
+\end{gather*}
+
+\noindent Now, let's state the expected profit of player d in this particular case.
+
+\begin{equation}
+E\pi_d = \frac{\phi(e_{d,1},e_{d,2},e_{d,3};e_{r,1},e_{r,2},e_{r,3})}{\theta(e_{d,1},e_{d,2},e_{d,3};e_{r,1},e_{r,2},e_{r,3})}v-(e_{d,1} + e_{d,2} + e_{d,3})
+\end{equation}
+
+\noindent Player d seeks to maximize their expected profit function over their choice variables $e_{d,1},e_{d,2},e_{d,3}$ so we naturally find first order conditions:
+
+\begin{equation}
+[e_{d,1}]: \frac{\theta(\cdot)\phi_{e_{d,1}}(\cdot) + \phi(\cdot)\theta_{e_{d,1}}(\cdot)}{(\theta(\cdot))^2}v = 1
+\end{equation}
+\begin{equation}
+[e_{d,2}]: \frac{\theta(\cdot)\phi_{e_{d,2}}(\cdot) + \phi(\cdot)\theta_{e_{d,2}}(\cdot)}{(\theta(\cdot))^2}v = 1
+\end{equation}
+\begin{equation}
+[e_{d,3}]: \frac{\theta(\cdot)\phi_{e_{d,3}}(\cdot) + \phi(\cdot)\theta_{e_{d,3}}(\cdot)}{(\theta(\cdot))^2}v = 1
+\end{equation}
+
+\noindent Now player d would like to figure out their best response to whatever their opponent might do given their choice of other efforts. So, assuming. In other words, they would like a function $e_{d,1}$ of parameters $ e_{d,2},e_{d,3},e_{r,1},e_{r,2},e_{r,3} $. This means there is some rearranging to be done. \\ \\
+\noindent Due to the symmetric nature of the problem at hand, focusing on equation (21) will provide insight into the other first order conditions. From (21) we have
+
+$$
+\Big( \theta(\cdot)\phi_{e_{d,1}}(\cdot) + \phi(\cdot)\theta_{e_{d,1}}(\cdot) \Big) v = \Big ( \theta(\cdot) \Big )^2 
+$$ 
+which is 
+$$
+\Big [ \theta(\cdot)(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - \phi(\cdot) \Big ((e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3}) \Big) \Big ] v = \Big ( \theta(\cdot) \Big )^2 
+$$
+and making use of the definition of $\theta(\cdot)$ we have
+$$
+\Big [ \theta(\cdot)(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - \frac{\phi(\cdot)}{(e_{d,1}+e_{r,1})} \theta(\cdot) \Big ] v = \Big ( \theta(\cdot) \Big )^2
+$$
+which, dividing by $\theta(\cdot)$, yields
+$$
+\Big [(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - \frac{\phi(\cdot)}{(e_{d,1}+e_{r,1})} \Big ] v = \theta(\cdot)
+$$
+and multiplying by $(e_{d,1}+e_{r,1})$ gives us
+$$
+\Big [(e_{d,1}+e_{r,1})(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - \phi(\cdot) \Big ] v = \theta(\cdot)(e_{d,1}+e_{r,1}),
+$$
+an equation that is actually more useful than it appears. Consider only the left hand side. Making use of the definition of $\phi(\cdot)$ we have
+$$
+\Big [(e_{d,1}+e_{r,1})(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - e_{d,1}e_{d,2}e_{d,3} - e_{d,1}e_{d,2}e_{r,3} - e_{d,1}e_{r,2}e_{d,3} - e_{r,1}e_{d,2}e_{d,3}  \Big ] v
+$$
+which can be rewritten as
+$$
+\Big [(e_{d,1}+e_{r,1})(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - e_{d,1}(e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) - e_{r,1}e_{d,2}e_{d,3}  \Big ] v
+$$
+and defining $ \psi = e_{d,2}e_{d,3} + e_{d,2}e_{r,3} + e_{r,2}e_{d,3} $ we have reduced the previous equality to
+$$
+\Big [(e_{d,1}+e_{r,1}) \psi - e_{d,1} \psi - e_{r,1}e_{d,2}e_{d,3}  \Big ] v = (e_{d,1}+e_{r,1})^2 (e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3}) .
+$$
+We can further reduce this through cancelation of the $ \psi $ terms, leaving us with
+$$
+\Big [e_{r,1} \psi - e_{r,1}e_{d,2}e_{d,3}  \Big ] v = (e_{d,1}+e_{r,1})^2 (e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3}) .
+$$
+Again, consider the left hand side. After making use of the definition of $\psi$ we have
+$$
+\Big [e_{r,1}e_{d,2}e_{d,3}  +  e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}  - e_{r,1}e_{d,2}e_{d,3}  \Big ] v 
+$$
+where the outer terms inside the brackets cancel such that our full equality now reduces through the process
+\begin{gather*}
+\Big [e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}  \Big ] v = (e_{d,1}+e_{r,1})^2 (e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3}) \\ \\
+\frac{e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}}{(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3})} v = (e_{d,1}+e_{r,1})^2
+\end{gather*}
+to the relatively concise best response function
+\begin{equation}
+e_{d,1} = \sqrt{\frac{e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}}{(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3})} v} - e_{r,1} 
+\end{equation}
+\\
+
+
+\noindent Now, by symmetry we know
+$$
+e_{r,1} = \sqrt{\frac{e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3}}{(e_{r,2}+e_{d,2})(e_{r,3}+e_{d,3})} v} - e_{d,1}
+$$
+or alternatively
+$$
+e_{d,1} = \sqrt{\frac{e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3}}{(e_{r,2}+e_{d,2})(e_{r,3}+e_{d,3})} v} - e_{r,1}
+$$
+which means
+\begin{gather*}
+\sqrt{\frac{e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}}{(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3})} v} - e_{r,1} = \sqrt{\frac{e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3}}{(e_{r,2}+e_{d,2})(e_{r,3}+e_{d,3})} v} - e_{r,1} \\ \\
+\sqrt{\frac{e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}}{(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3})} v} = \sqrt{\frac{e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3}}{(e_{r,2}+e_{d,2})(e_{r,3}+e_{d,3})} v}  \\ \\
+\frac{e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3}}{(e_{d,2}+e_{r,2})(e_{d,3}+e_{r,3})} v = \frac{e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3}}{(e_{r,2}+e_{d,2})(e_{r,3}+e_{d,3})} v \\ \\
+e_{r,1}e_{d,2}e_{r,3} + e_{r,1}e_{r,2}e_{d,3} = e_{d,1}e_{r,2}e_{d,3} + e_{d,1}e_{d,2}e_{r,3} \\ \\
+e_{r,1}(e_{d,2}e_{r,3} + e_{r,2}e_{d,3}) = e_{d,1}(e_{r,2}e_{d,3} + e_{d,2}e_{r,3}) \\ \\
+e_{r,1} = e_{d,1}
+\end{gather*}
+\noindent and, without loss of generality
+$$
+e_{r,i} = e_{d,i} \; \text{for} \; i \in \{1,2,3\}.
+$$
+\\ \\
+
+Applying this property to equation (24) we now see
+\begin{gather*}
+e_{d,1} = \sqrt{\frac{e_{d,1}e_{d,2}e_{d,3} + e_{d,1}e_{d,2}e_{d,3}}{(e_{d,2}+e_{d,2})(e_{d,3}+e_{d,3})} v} - e_{d,1}  \\ \\
+2 e_{d,1} = \sqrt{\frac{2 e_{d,1}e_{d,2}e_{d,3}}{4 e_{d,2}e_{d,3}} v} \\ \\
+4(e_{d,1})^2 = \frac{e_{d,1}}{2} v \\ \\
+e_{d,1} = \frac{1}{8}v
+\end{gather*}
+
+\noindent And thus, with out loss of generality, we have
+$$
+e_{j,i} = \frac{1}{8}v \; \text{for} \; j \in \{d,r \} \; \text{and} \; i \in \{1,2,3 \}.
+$$
+
+\noindent Since $ e_{j,i} = \frac{1}{8}v $ and since $p_d = \frac{1}{2}$ player $i$ now has expected profit
+$$
+E\pi_i = \frac{1}{2}v - \frac{3}{8}v
+$$
+$$
+E\pi_i = \frac{1}{8}v
+$$
+\noindent which is similar to the previous scenario.
+
+
+\end{document}
