@@ -1,8 +1,7 @@
 ## Pilot Data Analysis; 11/17/2020
 library(ggplot2)
 library(readxl)
-Pilot_Data <- read_excel("Desktop/University of Alabama Career/Year II/Experimental Econ/Class Project/Fuckabout2.xlsx")
-
+Pilot_Data <- read_excel("Desktop/Research/GerryMandering/An_Anderson_Deck/Pilot_Data_and_Analysis/Cleaned_Pilot_Data.xlsx")
 
 E4 <- Pilot_Data[, -c(3:5,9:17)]
 
