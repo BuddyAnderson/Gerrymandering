@@ -1,0 +1,83 @@
+---
+title: "Bug Analysis"
+author: "Buddy Anderson"
+date: "4/3/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+## Determining Impact of Bug
+
+```{r message=F, warning=F}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(reshape)
+rm(df)
+df <- read_excel("Raw_1_to_8.xlsx")
+df <- df %>% select(Session, Subject, Player, LType, Map)
+map_df <- subset(df, Map > 0)
+map_df$gob <- ifelse(map_df$Player == map_df$LType, "Correct", "Incorrect")
+```
+
+During session 8 a subject exited the laboratory to use the restroom and, due to time constraints, his map selection for the final round (under the veil of ignorance) was not recorded. Therefore, for the final round we have only `r nrow(map_df)` observations of map selections under the veil of ignorance.
+
+Being impacted by the bug means a subject saw both "You are Player A" and "You are Player B", one of which was displayed more prominently at the top of the screen.
+
+Number of subjects impacted by coding: `r sum(map_df$gob == "Incorrect")`
+
+```{r}
+par(mfrow = c(1, 2))
+map_df %>%
+  ggplot(aes(Map, fill = gob)) + geom_bar() + facet_wrap(~gob)
+map_df %>%
+  ggplot(aes(Map, fill = gob)) + geom_density(aes(alpha = 0.5)) + 
+  scale_fill_discrete(name="") +
+  scale_alpha(guide = 'none')
+```
+
+From the density plot the distributions seem pretty similar.
+
+Below we execute a Chi-Squared test to determine whether those impacted by the bug and those not impacted prefer different maps.
+
+```{r message=F, warning=F}
+alpha = 0.05
+df_test <- map_df %>% select(gob, Map)
+mdata <- melt(df_test, gob = c("Correct", "Incorrect"))
+nextdata <- cast(mdata, gob~value)
+colnames(nextdata) <- c("GOB","M1", "M2", "M3", "M4", "M5")
+nextdata <- nextdata %>% mutate(
+  total = M1 + M2 + M3 + M4 + M5
+)
+
+# Expected values
+nextdata <- nextdata %>% mutate(
+  E1 = total*sum(M1)/sum(total),
+  E2 = total*sum(M2)/sum(total),
+  E3 = total*sum(M3)/sum(total),
+  E4 = total*sum(M4)/sum(total),
+  E5 = total*sum(M5)/sum(total)
+)
+
+# Test stat
+nextdata <- nextdata %>% mutate(
+  tstat1 = ((M1 - E1)^(2))/E1,
+  tstat2 = ((M2 - E2)^(2))/E2,
+  tstat3 = ((M3 - E3)^(2))/E3,
+  tstat4 = ((M4 - E4)^(2))/E4,
+  tstat5 = ((M5 - E5)^(2))/E5
+)
+
+tstat <- sum(nextdata$tstat1) + sum(nextdata$tstat2) + 
+  sum(nextdata$tstat3) + sum(nextdata$tstat4) + sum(nextdata$tstat5) # 1.18
+
+dof = (5 -1)*(2-1) # 4
+```
+
+The critical value of a Chi-Squared test with $\alpha$ = `r alpha` and `r dof` degrees of freedom is `r qchisq(p=0.05, df=4, lower.tail = F)`. Our Chi-Squared statistic is `r tstat`, well below that of the critical value. Thus, we fail to reject the null that the two samples' preferences are the same.
+
+
+

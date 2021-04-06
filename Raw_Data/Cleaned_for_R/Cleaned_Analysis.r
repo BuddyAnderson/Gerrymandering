@@ -4,8 +4,7 @@
 # Cleaned Pilot Data Brief Review
 
 library(readxl)
-df <- read_excel(
-   "Cleaned_Pilot_Data.xlsx")
+df <- read_excel("Desktop/Research/GerryMandering/An_Anderson_Deck/Raw_Data/Cleaned_for_R/Cleaned_Raw_Session_08.xlsx")
 
 #### Below is information regarding the columns of the condensed data (only including relevant variables)
 
@@ -119,7 +118,7 @@ df_clean$Map <- as.numeric(as.character(df_clean$Map)) # make sure these values 
 Clean_Pilot_Data <- df_clean
 write.csv(
   Clean_Pilot_Data,
-  "Desktop/Research/GerryMandering/An_Anderson_Deck/Pilot_Data_and_Analysis/Simp_Pilot_Data.csv",
+  "Desktop/Research/GerryMandering/An_Anderson_Deck/Raw_Data/Cleaned_for_R/Simp_Data/Simp_Data_08.csv",
   row.names = FALSE)
 
 
