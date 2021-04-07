@@ -262,11 +262,12 @@ stage_2 <- df %>% subset(Period > 24 & Period < 28) %>%
   mutate(subject.id = Session*8-(8-Subject))
 
 library(raster)
-mode_df <- stage_2 %>% group_by(subject.id, Player) %>% summarise(mode.map = modal(Map_Selection, ties = 'random'))
+mode_df <- stage_2 %>% group_by(subject.id, Player) %>% 
+  summarise(mode.map = modal(Map_Selection, ties = 'random'))
 
 map_mode_bar <- ggplot(mode_df, aes(x=mode.map, fill = Player, color = Player)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
-map_mode_bar
+map_mode_bar + ggtitle("Modal Map Selection in Stage 2")
 
 # map_mode_hist <- ggplot(mode_df, aes(x=mode.map, fill = Player, color = Player)) + 
 #   geom_histogram(alpha = 0.5, position="identity")
@@ -293,3 +294,155 @@ ggplot(last_period, aes(x=Map_Selection)) +
 ggplot(last_period, aes(x=Map_Selection, fill = Player, color = Player)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 ```
+
+
+\newpage
+
+Now we are addressing:
+
+1) For the map where they should be bidding on every region, I would like to see player A’s 3 CDFs overlaid on top of each other because there’s no reason for them to differ but it’s hard to tell in the version you sent. 
+
+2) I would also like to see player B’s CDFs overlaid
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+df_clean <- df_clean %>% mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)))
+df_map_4 <- df_clean %>% 
+  filter(Map == 4) %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort)
+df_map_4_small <- df_map_4 %>%
+  group_by(Period, Player, District) %>% summarise(avg.period.bid = mean(as.numeric(Effort)))
+```
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+
+cdf_4 <- ggplot(df_map_4_small, aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=District)) + facet_wrap(~Player) + guides(size = F)
+
+cdf_4 + ggtitle("Map 4 CDF by Player and District")
+```
+
+
+3) Separately I would like to overlay player A and B’s CDFs for district 1 in the map where they bid on all districts since there’s no reason for these to differ. 
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+cdf_4_DG <- ggplot(df_map_4_small %>% filter(District == "EDG"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + guides(size = F)
+
+cdf_4_DG + ggtitle("Map 4 CDF Dark Gray District")
+```
+
+
+4) same as 3) for district 2.
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+cdf_4_LG <- ggplot(df_map_4_small %>% filter(District == "ELG"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + guides(size = F)
+
+cdf_4_LG + ggtitle("Map 4 CDF Light Gray District")
+```
+
+
+5) same as 3) for district 3.
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+cdf_4_W <- ggplot(df_map_4_small %>% filter(District == "EW"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + guides(size = F)
+
+cdf_4_W + ggtitle("Map 4 CDF White District")
+```
+
+
+6) & 7) On each of the two maps where the players are symmetric and only bidding on one district I would like to see their CDF‘s overlaid. 
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+###############################################################################################
+df_map_2 <- df_clean %>% 
+  filter(Map == 2) %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort)
+
+df_map_3 <- df_clean %>% 
+  filter(Map == 3) %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort)
+###############################################################################################
+df_map_2_small <- df_map_2 %>%
+  group_by(Period, Player, District) %>% summarise(avg.period.bid = mean(as.numeric(Effort)))
+
+df_map_3_small <- df_map_3 %>%
+  group_by(Period, Player, District) %>% summarise(avg.period.bid = mean(as.numeric(Effort)))
+###############################################################################################
+par(mfrow = c(1, 2))
+# Bidding in Map 2 White District
+cdf_2_W <- ggplot(df_map_2_small %>% filter(District == "EW"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + ggtitle("Map 2: White District") + guides(size = F)
+cdf_2_W
+
+# Bidding in Map 3 White District
+cdf_3_W <- ggplot(df_map_3_small %>% filter(District == "EW"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + ggtitle("Map 3: White District") + guides(size = F)
+cdf_3_W
+```
+
+
+8) Overlay the CDFs of the advantage player in map 1 and the advantage player in map 5.
+
+9) Overlay the CDFs of the disadvantaged player in map 1 and the disadvantaged player in map 5. 
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+###############################################################################################
+# Player B is advantaged in Map 1
+df_map_1 <- df_clean %>% 
+  filter(Map == 1) %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort)
+
+# Player A is advantaged in Map 5
+df_map_5 <- df_clean %>% 
+  filter(Map == 5) %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort)
+###############################################################################################
+df_map_1_small <- df_map_1 %>%
+  group_by(Period, Player, District) %>% summarise(avg.period.bid = mean(as.numeric(Effort)))
+df_map_5_small <- df_map_5 %>%
+  group_by(Period, Player, District) %>% summarise(avg.period.bid = mean(as.numeric(Effort)))
+###############################################################################################
+cdf_1_W <- ggplot(df_map_1_small %>% filter(District == "EW"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + ggtitle("Map 1 (Advantage B): White District") + guides(size = F)
+cdf_1_W
+cdf_5_W <- ggplot(df_map_5_small %>% filter(District == "EW"), aes(x=avg.period.bid, size = 1.5)) + stat_ecdf(aes(colour=Player)) + ggtitle("Map 5 (Advantage A): White District") + guides(size = F)
+cdf_5_W
+###############################################################################################
+# Overlay advantage in 1 with advantaged in 5
+# so only keep Player A Map == 5 and Player B Map == 1
+df_adv_overlay <- df_clean %>% 
+  filter((Map == 1 | Map == 5)&District == "EW") %>% 
+  dplyr::select(Period, subject.id, Player, Map, District, Effort) %>% 
+  mutate(Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", "Dis.adv"))
+
+df_adv_overlay <- df_adv_overlay %>%
+  group_by(Period, Player, Advantage, District) %>% 
+  summarise(avg.period.bid = mean(as.numeric(Effort)))
+###############################################################################################
+par(mfrow = c(1, 2))
+cdf_adv_overlay <- ggplot(df_adv_overlay %>% filter(Advantage == "Adv"), 
+                          aes(x=avg.period.bid, size = 1.5)) + 
+  stat_ecdf(aes(colour=Player)) +
+  ggtitle("Both Players Advantaged: White District") + guides(size = F)
+cdf_adv_overlay
+
+cdf_dis.adv_overlay <- ggplot(df_adv_overlay %>% filter(Advantage == "Dis.adv"), 
+                          aes(x=avg.period.bid, size = 1.5)) + 
+  stat_ecdf(aes(colour=Player)) +
+  ggtitle("Both Players Disadvantaged: White District") + guides(size = F)
+cdf_dis.adv_overlay
+```
+
+
+10) Assuming the two CDFs in 8) look the same and the two CDFs in 9) look the same, then make a combined advantaged CDF and a combined disadvantaged CDF and overlay those so we me can easily see how being advantaged matters.  
+
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+cdf_adv_dis.adv_overlay <- ggplot(df_adv_overlay, 
+                          aes(x=avg.period.bid, size = 1.5)) + 
+  stat_ecdf(aes(colour=Advantage)) +
+  ggtitle("Advnataged vs Disadvantaged") + guides(size = F)
+cdf_adv_dis.adv_overlay
+```
+
