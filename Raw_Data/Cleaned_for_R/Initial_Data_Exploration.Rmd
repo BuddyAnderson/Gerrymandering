@@ -13,6 +13,9 @@ Next we depict the modal map selection by each subject during stage 2 in a simpl
 
 Lastly we depict the final stage distribution of map selection for the entire sample and by Player (A or B).
 
+For reference:
+
+![]("Maps_Image")
 
 ```{r setup, include=FALSE, warning=F, message=F}
 knitr::opts_chunk$set(echo = TRUE)
@@ -331,6 +334,7 @@ cdf_4_DG <- ggplot(df_map_4_small %>% filter(District == "EDG"), aes(x=avg.perio
 cdf_4_DG + ggtitle("Map 4 CDF Dark Gray District")
 ```
 
+\newpage
 
 4) same as 3) for district 2.
 
@@ -351,6 +355,7 @@ cdf_4_W <- ggplot(df_map_4_small %>% filter(District == "EW"), aes(x=avg.period.
 cdf_4_W + ggtitle("Map 4 CDF White District")
 ```
 
+\newpage
 
 6) & 7) On each of the two maps where the players are symmetric and only bidding on one district I would like to see their CDF‘s overlaid. 
 
@@ -381,6 +386,8 @@ cdf_3_W <- ggplot(df_map_3_small %>% filter(District == "EW"), aes(x=avg.period.
 cdf_3_W
 ```
 
+
+\newpage
 
 8) Overlay the CDFs of the advantage player in map 1 and the advantage player in map 5.
 
@@ -434,15 +441,18 @@ cdf_dis.adv_overlay <- ggplot(df_adv_overlay %>% filter(Advantage == "Dis.adv"),
 cdf_dis.adv_overlay
 ```
 
+\newpage
 
 10) Assuming the two CDFs in 8) look the same and the two CDFs in 9) look the same, then make a combined advantaged CDF and a combined disadvantaged CDF and overlay those so we me can easily see how being advantaged matters.  
 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 cdf_adv_dis.adv_overlay <- ggplot(df_adv_overlay, 
-                          aes(x=avg.period.bid, size = 1.5)) + 
+                          aes(x=avg.period.bid, size = 1.5)) +
+  scale_color_manual(values = c("black","blue")) +
   stat_ecdf(aes(colour=Advantage)) +
-  ggtitle("Advnataged vs Disadvantaged") + guides(size = F)
-cdf_adv_dis.adv_overlay
+  ggtitle("Advnataged vs Disadvantaged") +
+  guides(size = F)
+cdf_adv_dis.adv_overlay + scale_fill_brewer()
 ```
 
