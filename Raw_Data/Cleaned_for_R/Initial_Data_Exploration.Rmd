@@ -401,7 +401,7 @@ Now we are addressing:
 df_clean <- df_clean %>% mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)))
 df_all_cdf <- df_clean %>% dplyr::select(Period, subject.id, Player, District, Map, Effort)
 
-only.4 <- df_all_cdf %>% filter(Map == 4) # %>% group_by(subject.id, District, Effort)
+only.4 <- df_all_cdf %>% filter(Map == 4, District == c("EDG","ELG","EW")) # %>% group_by(subject.id, District, Effort)
 
 ggplot(only.4, aes(x = as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=District)) +
@@ -552,7 +552,62 @@ ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.b
 
 []- Regression from Deck's notes
 
-[]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same. 
+[DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library("stats")
+
+# These seem pretty sensitive, am I wrong?
+
+# Map 4 Dark Grey
+EDG4A <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "A")[,"Effort"]
+EDG4B <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EDG4A)),as.numeric(unlist(EDG4B)))
+
+# Map 4 Light Grey
+ELG4A <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "A")[,"Effort"]
+ELG4B <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(ELG4A)),as.numeric(unlist(ELG4B)))
+
+# Map 4 White
+EW4A <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "A")[,"Effort"]
+EW4B <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW4A)),as.numeric(unlist(EW4B)))
+
+# Map 2 White
+EW2A <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "A")[,"Effort"]
+EW2B <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW2A)),as.numeric(unlist(EW2B)))
+
+# Map 3 White
+EW3A <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "A")[,"Effort"]
+EW3B <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW3A)),as.numeric(unlist(EW3B)))
+
+# Advantaged
+ADV.A <- subset(dissag.df.overlay, Advantage == "Adv" & Player == "A")[,"Effort"]
+ADV.B <- subset(dissag.df.overlay, Advantage == "Adv" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(ADV.A)),as.numeric(unlist(ADV.B)))
+
+# Disadvantaged
+Dis.ADV.A <- subset(dissag.df.overlay, Advantage == "Dis.adv" & Player == "A")[,"Effort"]
+Dis.ADV.B <- subset(dissag.df.overlay, Advantage == "Dis.adv" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(Dis.ADV.A)),as.numeric(unlist(Dis.ADV.B)))
+
+# Adv vs Dis.adv
+ADV.All <- subset(dissag.df.overlay, Advantage == "Adv")[,"Effort"]
+Dis.ADV.All <- subset(dissag.df.overlay, Advantage == "Dis.adv")[,"Effort"]
+
+ks.test(as.numeric(unlist(ADV.All)),as.numeric(unlist(Dis.ADV.All)))
+```
+
 
 [DONE]- Also, since it seems that things are symmetric, it would be good to make a single graph that has the cdfs of total pair level investment by map (here a pair in a period is an observation). That way we can see if more is spent on some maps than others.
 
@@ -585,19 +640,31 @@ ggplot(cleaned_pairs %>%
 ```
 
 
-[]- One thing that would be good to do is for each kind of choice (advantaged in map 1 or 5, disadvantaged in map 1 or 5, white in map 2, white in map 3, all regions in map 4) take the average across all subjects in a period. Then plot a time series of those averages.  This should include phase 1 and 2 so we can see if map selection impacted bidding on maps.
+[DONE]- One thing that would be good to do is for each kind of choice (advantaged in map 1 or 5, disadvantaged in map 1 or 5, white in map 2, white in map 3, all regions in map 4) take the average across all subjects in a period. Then plot a time series of those averages.  This should include phase 1 and 2 so we can see if map selection impacted bidding on maps.
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 time_series_avg <- df_clean %>% 
   filter(((Map == 1 | Map == 5 | Map == 2 | Map == 3) & District == "EW")|(Map == 4)) %>% 
   dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
   mutate(Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
-                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Choice = ifelse(Advantage == "Adv", "Adv", 
+                         ifelse(Advantage == "Dis.adv", "Dis", 
+                                ifelse(Map == 3, "3 White", 
+                                       ifelse(Map == 2, "2 White",
+                                              ifelse(Map == 4 & District == "EW", "4 EW",
+                                                     ifelse(Map == 4 & District == "EDG", "4 EDG", "4 ELG")))))))
 
 # Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
 session.level.ts.avgs <- time_series_avg %>% filter(Period < 28, District == c("EW","EDG","ELG")) %>% 
-  group_by(Session, Period, Map, District, Advantage) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
-session.level.ts.avgs
+  group_by(Session, Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
+
+
+
+session.level.ts.avgs %>%
+  ggplot(aes(x=Period, y=avg.Effort)) +
+  geom_line(aes(color = as.character(Session))) + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
+    scale_x_continuous(breaks=c(15:27))
 ```
 
 
@@ -634,10 +701,11 @@ by_map_selection_count
 
 
 []- Rank sum test looking at whether or not their political views influence whether they gerrymander or not...?
-[]- relationships 
+
+[]- relationships
 - political beliefs and saying gerrymandering 
 - how either of those answers depend on whether they actually gerrymander
-- T test of whether observations are same for number of people selecting whether they supprot gerrymandering or not
+- T test of whether observations are same for number of people selecting whether they support gerrymandering or not
 
 - Look at for gerrymanderers, is their political response different thatn the political response of the non-gerrymanderers
 - for the same split, did they say they like gerrymandering or not (are the porportions the same)
