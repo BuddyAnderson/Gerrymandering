@@ -549,9 +549,6 @@ ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.b
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 ```
 
-
-[]- Regression from Deck's notes
-
 [DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
@@ -699,19 +696,65 @@ by_map_selection_count$pct.of.pop <- round((by_map_selection_count$n/sum(by_map_
 by_map_selection_count
 ```
 
+*************
 
-[]- Rank sum test looking at whether or not their political views influence whether they gerrymander or not...?
+[DONE]- Rank sum test looking at whether or not their political views influence whether they gerrymander or not...?
+
+Before the rank sum test let's recall the PEQ relevant for the test.
+
+PEQ_7: "On a scale of 1 to 9, how would you describe your political views with 1 being extremely liberal (i.e. to the left of the Democratic Party), 5 being centrist (i.e. falling between the Democratic Party and the Republican Party), and 9 being extremely conservative (i.e. to the right of the Republican party)." (multiple choice; 1 - 9)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+# really just need response for each subject to include on the simplified data
+# so just pull in their responses...
+peq_response <- read_excel("PEQ_Responses.xlsx") %>%
+  dplyr::select(Session, Period, Subject,PEQ_7,TimeSubmitPEQ7OK, PEQ_8) %>%
+  mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)))
+
+# and join to gerry table
+gerry_and_politics <- right_join(mode_df, peq_response, copied = F) %>%
+  dplyr::select(Session, subject.id, PEQ_7, PEQ_8, gerry) %>%
+  mutate(support_gerry = ifelse(PEQ_8 == 1, "Yes", "No"))
+
+
+ggplot(gerry_and_politics, aes(x = PEQ_7)) + 
+  geom_histogram(aes(fill = as.character(support_gerry),color = as.character(support_gerry))) +
+  facet_wrap(~gerry)
+```
+
+Now, onto the rank sum test.
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library(ggpubr)
+rank_res_gerryied <- wilcox.test(PEQ_7 ~ as.character(gerry), data = gerry_and_politics,
+                   exact = FALSE)
+rank_res_gerryied
+```
+
+So we fail to reject the null that the political preference is the same regardless of whether they actually gerrymandered.
+
+What about based on whether they *support* gerrymandering? (a.k.a PEQ_8)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+rank_res_support.gerry <- wilcox.test(PEQ_7 ~ support_gerry, data = gerry_and_politics,
+                   exact = FALSE)
+rank_res_support.gerry
+```
+
+Also fail to reject the null that political preference is the same regardless of whether they support gerrymandering.
+
+[]- Regression from Deck's notes
 
 []- relationships
-- political beliefs and saying gerrymandering 
+- political beliefs and saying gerrymandering
 - how either of those answers depend on whether they actually gerrymander
 - T test of whether observations are same for number of people selecting whether they support gerrymandering or not
 
-- Look at for gerrymanderers, is their political response different thatn the political response of the non-gerrymanderers
-- for the same split, did they say they like gerrymandering or not (are the porportions the same)
+- Look at for gerrymanders, is their political response different than the political response of the non-gerrymanders
+
+- for the same split, did they say they like gerrymandering or not (are the proportions the same)
 
 - comparing the two survey responses; the relationship between gerrymandering and political views
-
 
 []- when they don't know who they are which maps are they choosing
 
