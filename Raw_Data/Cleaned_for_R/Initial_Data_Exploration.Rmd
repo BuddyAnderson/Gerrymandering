@@ -377,13 +377,17 @@ Notice, in the below figures the singular choice of -99 represents the individua
 # Create "last_period" as an empty vector and extract period 28 from each sessions
 last_period <-subset(df, Period=="28")
 
-last_period$Map_Selection <- as.factor(last_period$Map_Selection)
+last_period$Map_Selection <- as.character(last_period$Map_Selection)
 last_period$Bug <- ifelse(last_period$Player == last_period$LType, "No", "Yes")
 
-ggplot(last_period, aes(x=Map_Selection)) +
+# Adding filter here to remove the guy who left the session while choosing a map
+last_period %>% filter(Map_Selection != "-99") %>%
+  ggplot(aes(x=Map_Selection)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 
-ggplot(last_period, aes(x=Map_Selection, fill = Player, color = Player)) +
+# Adding filter here to remove the guy who left the session while choosing a map
+last_period %>% filter(Map_Selection != "-99") %>%
+  ggplot(aes(x=Map_Selection, fill = Player, color = Player)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 ```
 
@@ -543,10 +547,71 @@ map_four_bidding <- map_four_bidding %>%
 map_four_bidding <- map_four_bidding %>%
   mutate(Spread = ifelse(all.three.bids == 1, max_bid - min_bid, 
                          ifelse(two.bids == 1, max_bid - median_bid, 
-                                ifelse(one.bids == 1, max_bid - min_bid, -99))))
+                                ifelse(one.bids == 1, max_bid - min_bid, -1))))
+
+map_four_bidding$districts.bid <- factor(map_four_bidding$districts.bid,                 # Re-level group factor
+                         levels = c("Zero", "One", "Two", "Three"))
 
 ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity")
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+  ggtitle("Unadjusted Spread")
+```
+
+Separate graphs for bidding in two and separate for bidding in three (maybe under table with pct of Zero, One, Two, and Three bids in           Symmetric_Map_3,1)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
+  ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+  facet_wrap(~districts.bid) +
+  ggtitle("Unadjusted Spread")
+
+```
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+## Do the pcts and the graphs treating bids =< 5 as if they are 0
+# Adjusted Spread (all bids < 5 setting equal to 0)
+adjusted_map_four_bidding <- df %>% dplyr::select(Session, Period, Subject, Player, EDG_4, ELG_4, EW_4)
+
+# Replace bids <= 5 with 0
+adjusted_map_four_bidding[,5:7][adjusted_map_four_bidding[,5:7] <= 5 ] <- 0
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>% mutate(two.bids = ifelse((EDG_4 > 0 & ELG_4 > 0 & EW_4 == 0)|(EDG_4 > 0 & ELG_4 == 0 & EW_4 > 0)|(EDG_4 == 0 & ELG_4 > 0 & EW_4 > 0),1,0))
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>% mutate(one.bids = ifelse((EDG_4 > 0 & ELG_4 == 0 & EW_4 == 0)|(EDG_4 == 0 & ELG_4 > 0 & EW_4 == 0)|(EDG_4 == 0 & ELG_4 == 0 & EW_4 > 0),1,0))
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>% mutate(all.three.bids = ifelse((EDG_4 > 0 & ELG_4 > 0 & EW_4 > 0),1,0))
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>% mutate(all.zeros.bids = ifelse((EDG_4 == 0 & ELG_4 == 0 & EW_4 == 0),1,0))
+
+summarize(adjusted_map_four_bidding, n.records = n(),
+          n.all.zeros = sum(all.zeros.bids),
+          n.one.district  = sum(one.bids),
+          n.two.districts = sum(two.bids),
+          n.three.districts = sum(all.three.bids),
+          pct.zeros = n.all.zeros/n.records,
+          pct.bid.one = n.one.district/n.records,
+          pct.bid.two = n.two.districts/n.records,
+          pct.bid.three = n.three.districts/n.records,
+          )
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>%
+  mutate(districts.bid = ifelse(all.three.bids == 1, "Three", ifelse(two.bids == 1, "Two", ifelse(one.bids == 1, "One", "Zero"))),
+         max_bid = pmax(EDG_4, ELG_4, EW_4),
+         min_bid = pmin(EDG_4, ELG_4, EW_4),
+         median_bid = rowMedians(as.matrix(adjusted_map_four_bidding[,c(5,6,7)])))
+
+adjusted_map_four_bidding <- adjusted_map_four_bidding %>%
+  mutate(Spread = ifelse(all.three.bids == 1, max_bid - min_bid, 
+                         ifelse(two.bids == 1, max_bid - median_bid, 
+                                ifelse(one.bids == 1, max_bid - min_bid, -1))))
+
+adjusted_map_four_bidding$districts.bid <- factor(adjusted_map_four_bidding$districts.bid,         # Re-level group factor
+                         levels = c("Zero", "One", "Two", "Three"))
+
+ggplot(adjusted_map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+  ggtitle("Adjusted Spread")
 ```
 
 [DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
@@ -664,11 +729,10 @@ session.level.ts.avgs %>%
     scale_x_continuous(breaks=c(15:27))
 ```
 
-
-
 [DONE]- A small cosmetic point is to make sure you keep the x-axis fixed to make comparisons between graphs easier.  It is not a big deal for this, just something to do in general. In the first part of the document you have some that include 80 and some that don’t. 
 
 [DONE]- Average bid on each district on each map by role
+
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 head(avg.bid.map.district)
 ```
@@ -720,6 +784,18 @@ gerry_and_politics <- right_join(mode_df, peq_response, copied = F) %>%
 ggplot(gerry_and_politics, aes(x = PEQ_7)) + 
   geom_histogram(aes(fill = as.character(support_gerry),color = as.character(support_gerry))) +
   facet_wrap(~gerry)
+
+ggplot(gerry_and_politics, aes(x = PEQ_7)) +
+  geom_histogram(aes(fill = "PEQ_8", fill = "PEQ_8"))
+
+nrow(subset(gerry_and_politics, PEQ_7 > 5))
+
+nrow(subset(gerry_and_politics, PEQ_7 < 5))
+
+sum(gerry_and_politics$gerry)/nrow(gerry_and_politics)
+
+## TO MAKE
+##### stacked figure: they do gerrymandering and they don't gerrymander
 ```
 
 Now, onto the rank sum test.
@@ -743,19 +819,74 @@ rank_res_support.gerry
 
 Also fail to reject the null that political preference is the same regardless of whether they support gerrymandering.
 
-[]- Regression from Deck's notes
+[DONE]- political beliefs and saying gerrymandering (**done above**; no diff. between gerrymandering and politics)
 
-[]- relationships
-- political beliefs and saying gerrymandering
-- how either of those answers depend on whether they actually gerrymander
-- T test of whether observations are same for number of people selecting whether they support gerrymandering or not
+[DONE]- how either of those answers depend on whether they actually gerrymander (**above** = no diff. b/w support gerry and politics; **below** = no diff in support of gerrymandering based on whether actually gerry)
 
-- Look at for gerrymanders, is their political response different than the political response of the non-gerrymanders
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+rank_support.gerry_actually.gerry <- wilcox.test(PEQ_8 ~ as.character(gerry), data = gerry_and_politics, exact = FALSE)
+rank_support.gerry_actually.gerry
 
-- for the same split, did they say they like gerrymandering or not (are the proportions the same)
+# wilcox.test(gerry ~ support_gerry, data = gerry_and_politics, exact = FALSE)
+```
 
-- comparing the two survey responses; the relationship between gerrymandering and political views
+
+[DONE]- Z test of whether observations are same for number of people selecting whether they support gerrymandering or not (same # of people in both camps; probably going to be diff given the distribution between y and n)
+
+(^In Sig.)
+
+[DONE]- Of the people who say they don't support it, what % actually did it
+
+```{r}
+nrow(subset(gerry_and_politics, PEQ_8 == 2 & gerry == 1))/nrow(subset(gerry_and_politics, PEQ_8 == 2))
+```
+
+
+
+[DONE]- for the same split, did they say they like gerrymandering or not proportionately (are the proportions the same) ????????? Only have 3 that say support gerrymandering... is this enough to make any determination?
+
+(Do you like it as a function of whether you actually did it)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+gerry_and_politics <- gerry_and_politics %>% 
+  mutate(support_gerry_numeric = ifelse(support_gerry == "No", 0, 1))
+
+nrow(subset(gerry_and_politics, gerry == 1 & gerry_and_politics$support_gerry == "Yes"))/nrow(subset(gerry_and_politics, gerry == 1))
+
+nrow(subset(gerry_and_politics, gerry == 0 & gerry_and_politics$support_gerry == "Yes"))/nrow(subset(gerry_and_politics, gerry == 0))
+```
+
+This is for the bar graph
 
 []- when they don't know who they are which maps are they choosing
+  - distinguish b/w people choosing gerrymandered map based on if they are choosing it after having chosen it in previous periods
+  - 4 bars; gerrymander A and B on one column (two colored bars; one color is "gerrymandered for self" other color "gerrymandered for other")
+  - Some people like gerrymandered maps even not knowing who they are
+  - Some pick gerrymander for self (have been picking the map for themselves in previous round)
+  
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+mode_df_with_end <- inner_join(mode_df,stage_3, copied = F) %>%
+  rename(final.map.choice = Map_Selection) %>%
+  mutate(spillover = ifelse(mode.map == final.map.choice & gerry == 1, "Spillover", "No Spillover"))
+
+mode_df_with_end <- mode_df_with_end[!(mode_df_with_end$final.map.choice == -99),]
+
+#combine maps 1 and 5. Only color maps based off if they are potential spillovers
+mode_df_with_end <- mode_df_with_end %>%
+  mutate(adjusted.map.mode = ifelse(mode.map == '5' | mode.map == '1', "Gerry A or B", as.character(mode.map)),
+         adjusted.final.map.choice = ifelse(final.map.choice == '5' | final.map.choice == '1', "Gerry A or B", as.character(final.map.choice)))
+
+map_mode_with_end_bar <- 
+  ggplot(mode_df_with_end, aes(x=adjusted.final.map.choice, fill = spillover, color = spillover)) +
+  geom_bar(width = 0.5, alpha = 0.5, position="identity")
+map_mode_with_end_bar + labs(title = "Map Choice in Final Period",
+                             subtitle = "Spillover includes only those who actually gerrymandered and chose their previously advantaged map both in stage 2 and stage 3")
+  
+```
+
+
+[]- Regression from Deck's notes
+
+[]- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
 
 
