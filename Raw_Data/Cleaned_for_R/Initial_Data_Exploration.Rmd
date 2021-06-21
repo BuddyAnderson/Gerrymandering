@@ -553,7 +553,7 @@ map_four_bidding$districts.bid <- factor(map_four_bidding$districts.bid,        
                          levels = c("Zero", "One", "Two", "Three"))
 
 ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
   ggtitle("Unadjusted Spread")
 ```
 
@@ -562,7 +562,7 @@ Separate graphs for bidding in two and separate for bidding in three (maybe unde
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
   ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
   facet_wrap(~districts.bid) +
   ggtitle("Unadjusted Spread")
 
@@ -610,7 +610,13 @@ adjusted_map_four_bidding$districts.bid <- factor(adjusted_map_four_bidding$dist
                          levels = c("Zero", "One", "Two", "Three"))
 
 ggplot(adjusted_map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity") + 
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
+  ggtitle("Adjusted Spread")
+
+adjusted_map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
+  ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
+  facet_wrap(~districts.bid) +
   ggtitle("Adjusted Spread")
 ```
 
@@ -884,9 +890,59 @@ map_mode_with_end_bar + labs(title = "Map Choice in Final Period",
   
 ```
 
+We are interested in a more reasonable naming device to provide a better way to think about each map. 
+
+For the gerrymandered maps we refer to them as $Gerry_i$ for $i \in \{A,B\}$ where $i$ identifies the player for whom the map is gerrymandered (Player A is advantaged in $Gerry_A$). That is, Map 1 will be $Gerry_B$ and Map 5 will be $Gerry_A$.
+
+As the remaining maps are symmetric at the player level we reference $Sym_{d,z}$ for $d \in \{1,3\}$ and $z \in \{1,3\}$ where $d$ denotes the number of competitive districts and $z$ denotes the number of zones within each competitive district. That is, Map 2 will be $Sym_{1,1}$, Map 3 will be $Sym_{1,3}$, and Map 4 will be $Sym_{3,1}$.
+
 
 []- Regression from Deck's notes
 
+\[Effort = \alpha + \beta_1 Player_B + \beta_2 Map_2 + \beta_3 Map_2 Player_B + \beta_4 Map_3 + \beta_5 Map_3 Player_B + \beta_6 Map_4 + \beta_7 Map_4 Player_B + \beta_8 Map_5 + \beta_9 Map_5 Player_B\]
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+#long_df <- df %>% dplyr::select(Session, Period, Subject, Player, Partner, LType, EDG_5:EW_1, pEDG_5:pEW_1) #%>% gather(District, Effort, EDG_5:pEW_1)
+
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>% 
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(Player_B = ifelse(Player== "B", 1, 0),
+         Map_1 = ifelse(Map == "TE_1", 1, 0),
+         Map_2 = ifelse(Map == "TE_2", 1, 0),
+         Map_3 = ifelse(Map == "TE_3", 1, 0),
+         Map_4 = ifelse(Map == "TE_4", 1, 0),
+         Map_5 = ifelse(Map == "TE_5", 1, 0))
+         #subject.id = Session*8-(8-Subject)
+
+
+# want to use map 2 as baseline...?? Did we decide on this or not...
+map.player.interaction <- lm(
+  Effort ~ Player_B + Map_1 + Map_1*Player_B + Map_3 + Map_3*Player_B + Map_4 + Map_4*Player_B
+  + Map_5 + Map_5*Player_B,
+  data = regress_df
+  )
+
+summary(map.player.interaction)
+```
+
+
 []- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+
+
+# avg.bid.by.period.ms <- subset(avg.bid.by.period, Period>24 & Period<28)
+# 
+# avg.bid.by.period.ms$Period <- as.character(avg.bid.by.period.ms$Period)
+# avg.bid.by.period.ms$p25 <- ifelse(avg.bid.by.period.ms$Period == '25', 1, 0)
+# avg.bid.by.period.ms$p26 <- ifelse(avg.bid.by.period.ms$Period == '26', 1, 0)
+# avg.bid.by.period.ms$p27 <- ifelse(avg.bid.by.period.ms$Period == '27', 1, 0)
+# 
+# model <- lm(avg.Effort ~ p26 + p27, data=avg.bid.by.period.ms)
+# summary(model)
+```
+
 
 
