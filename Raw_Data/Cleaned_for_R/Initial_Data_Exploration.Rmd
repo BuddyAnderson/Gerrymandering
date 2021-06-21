@@ -897,7 +897,7 @@ For the gerrymandered maps we refer to them as $Gerry_i$ for $i \in \{A,B\}$ whe
 As the remaining maps are symmetric at the player level we reference $Sym_{d,z}$ for $d \in \{1,3\}$ and $z \in \{1,3\}$ where $d$ denotes the number of competitive districts and $z$ denotes the number of zones within each competitive district. That is, Map 2 will be $Sym_{1,1}$, Map 3 will be $Sym_{1,3}$, and Map 4 will be $Sym_{3,1}$.
 
 
-[]- Regression from Deck's notes
+[DONE]- Regression from Deck's notes
 
 \[Effort = \alpha + \beta_1 Player_B + \beta_2 Map_2 + \beta_3 Map_2 Player_B + \beta_4 Map_3 + \beta_5 Map_3 Player_B + \beta_6 Map_4 + \beta_7 Map_4 Player_B + \beta_8 Map_5 + \beta_9 Map_5 Player_B\]
 
@@ -930,18 +930,20 @@ summary(map.player.interaction)
 
 []- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
 
+(so we just want the impact on the map selection phase on the average map level bids)
+
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+# Does average bid in each map change as a result of the period?
+# Does average bid in each district change as a result of the period?
+period.averages <- regress_df %>%
+  filter(Period < 28) %>%
+  dplyr::select(Period, Map, Effort) %>%
+  group_by(Period, Map) %>% summarise(avg.effort = mean(as.numeric(Effort))) %>%
+  mutate(Selection_Stage = ifelse(Period > 24, 1, 0))
+  
+ms.on.effort <- lm(avg.effort ~ Selection_Stage, data = period.averages)
 
-
-# avg.bid.by.period.ms <- subset(avg.bid.by.period, Period>24 & Period<28)
-# 
-# avg.bid.by.period.ms$Period <- as.character(avg.bid.by.period.ms$Period)
-# avg.bid.by.period.ms$p25 <- ifelse(avg.bid.by.period.ms$Period == '25', 1, 0)
-# avg.bid.by.period.ms$p26 <- ifelse(avg.bid.by.period.ms$Period == '26', 1, 0)
-# avg.bid.by.period.ms$p27 <- ifelse(avg.bid.by.period.ms$Period == '27', 1, 0)
-# 
-# model <- lm(avg.Effort ~ p26 + p27, data=avg.bid.by.period.ms)
-# summary(model)
+summary(ms.on.effort)
 ```
 
 
