@@ -5,17 +5,17 @@ date: "4/4/2021"
 output: pdf_document
 ---
 
-Definitely not the prettiest of graphics, but we can revisit the design. 
+We are interested in a more reasonable naming device to provide a better way to think about each map. 
 
-We first look at CDFs of bids for each district in each map for Players A and B.
+For the gerrymandered maps we refer to them as $Gerry_i$ for $i \in \{A,B\}$ where $i$ identifies the player for whom the map is gerrymandered (Player A is advantaged in $Gerry_A$). That is, Map 1 will be $Gerry_B$ and Map 5 will be $Gerry_A$.
 
-Next we depict the modal map selection by each subject during stage 2 in a simple bar graph.
-
-Lastly we depict the final stage distribution of map selection for the entire sample and by Player (A or B).
+As the remaining maps are symmetric at the player level we reference $Sym_{d,z}$ for $d \in \{1,3\}$ and $z \in \{1,3\}$ where $d$ denotes the number of competitive districts and $z$ denotes the number of zones within each competitive district. That is, Map 2 will be $Sym_{1,1}$, Map 3 will be $Sym_{1,3}$, and Map 4 will be $Sym_{3,1}$.
 
 For reference:
 
 ![]("Maps_Image")
+
+Reading from left to right we have Gerry_B, Symm_1_1, Symm_1_3, Symm_3_1, and Gerry_A.
 
 ```{r setup, include=FALSE, warning=F, message=F}
 knitr::opts_chunk$set(echo = TRUE)
@@ -48,131 +48,6 @@ df <- df %>% rename(Partner = partner,
 library(tidyr)
 long_df <- df %>% dplyr::select(Session, Period, Subject, Player, Partner, LType, EDG_5:EW_1, pEDG_5:pEW_1) %>% gather(District, Effort, EDG_5:pEW_1)
 
-# long_df_map <- data.frame(lapply(long_df, function(x) {
-#   gsub("EDG5", "EDG_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EDG4", "EDG_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EDG3", "EDG_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EDG2", "EDG_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EDG1", "EDG_1", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df, function(x) {
-#   gsub("pEDG5", "pEDG_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEDG4", "pEDG_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEDG3", "pEDG_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEDG2", "pEDG_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEDG1", "pEDG_1", x)
-# }))
-# ##########################
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("ELG5", "ELG_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("ELG4", "ELG_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("ELG3", "ELG_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("ELG2", "ELG_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("ELG1", "ELG_1", x)
-# }))
-# 
-# ## partner
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pELG5", "pELG_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pELG4", "pELG_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pELG3", "pELG_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pELG2", "pELG_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pELG1", "pELG_1", x)
-# }))
-# ##########################
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EW5", "EW_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EW4", "EW_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EW3", "EW_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EW2", "EW_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("EW1", "EW_1", x)
-# }))
-# 
-# ## partner
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEW5", "pEW_5", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEW4", "pEW_4", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEW3", "pEW_3", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEW2", "pEW_2", x)
-# }))
-# 
-# long_df_map <- data.frame(lapply(long_df_map, function(x) {
-#   gsub("pEW1", "pEW_1", x)
-# }))
-##########################
-
 # Orderly data with district, Map, and effort amount for each subject each period in each session
 
 # No need to use long_df_map because already renamed them manually above
@@ -199,7 +74,7 @@ theme_set(theme_pubr())
 
 \newpage
 
-Note that in Maps 1, 2, 3, and 5 the white district is the only competitive district in the sense that only the competition within the white district determines whether a subject wins that Map. The exception is Map 4 in which it is logical to bid in any district as no district is guaranteed a victor.
+Note that in Gerry_A, Gerry_B, Symm_1_1, and Symm_1_3 the white district is the only competitive district in the sense that only the competition within the white district determines whether a subject wins that Map. The exception is Symm_3_1 in which it is logical to bid in any district as no district is guaranteed a victor.
 
 Gerry_B
 
@@ -377,7 +252,7 @@ map_mode_bar + ggtitle("Modal Map Selection in Stage 2")
 
 \newpage
 
-Notice, in the below figures the singular choice of -99 represents the individual (subject 4 from session 8) that excused themselves from the experiment during this part of their session. The first figure depicts the map choices during the final stage for all participants. The second figure is of interest because we might have spillover from the previous stage whereby participants choose the map they have been choosing without really paying attention to the implications...or they could just be flipping the coin that they are the "incumbent" after randomization occurs.
+The first figure depicts the map choices during the final stage for all participants. The second figure is of interest because we might have spillover from the previous stage whereby participants choose the map they have been choosing without really paying attention to the implications...or they could just be flipping the coin that they are the "incumbent" after randomization occurs.
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 # Create "last_period" as an empty vector and extract period 28 from each sessions
@@ -471,9 +346,9 @@ ggplot(df_map_3 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "
 
 \newpage
 
-8) Overlay the CDFs of the advantage player in map 1 and the advantage player in map 5.
+8) Overlay the CDFs of the advantage player in Gerry_B and the advantage player in Gerry_A.
 
-9) Overlay the CDFs of the disadvantaged player in map 1 and the disadvantaged player in map 5. 
+9) Overlay the CDFs of the disadvantaged player in Gerry_B and the disadvantaged player in Gerry_A. 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 dissag.df.overlay <- df_clean %>% 
@@ -642,8 +517,6 @@ adjusted_map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 library("stats")
-
-# These seem pretty sensitive, am I wrong?
 
 # Map 4 Dark Grey
 EDG4A <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "A")[,"Effort"]
@@ -927,12 +800,6 @@ map_mode_with_end_bar + labs(title = "Map Choice in Final Period",
                              subtitle = "Spillover includes only those who actually gerrymandered and chose their previously advantaged map both in stage 2 and stage 3")
   
 ```
-
-We are interested in a more reasonable naming device to provide a better way to think about each map. 
-
-For the gerrymandered maps we refer to them as $Gerry_i$ for $i \in \{A,B\}$ where $i$ identifies the player for whom the map is gerrymandered (Player A is advantaged in $Gerry_A$). That is, Map 1 will be $Gerry_B$ and Map 5 will be $Gerry_A$.
-
-As the remaining maps are symmetric at the player level we reference $Sym_{d,z}$ for $d \in \{1,3\}$ and $z \in \{1,3\}$ where $d$ denotes the number of competitive districts and $z$ denotes the number of zones within each competitive district. That is, Map 2 will be $Sym_{1,1}$, Map 3 will be $Sym_{1,3}$, and Map 4 will be $Sym_{3,1}$.
 
 
 [DONE]- Regression from Deck's notes
