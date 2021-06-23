@@ -201,7 +201,7 @@ theme_set(theme_pubr())
 
 Note that in Maps 1, 2, 3, and 5 the white district is the only competitive district in the sense that only the competition within the white district determines whether a subject wins that Map. The exception is Map 4 in which it is logical to bid in any district as no district is guaranteed a victor.
 
-Map 1
+Gerry_B
 
 
 ```{r, message=F, echo=F}
@@ -210,17 +210,17 @@ g1.1 <- ggplot(df, aes(x = EDG_1)) +
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80) +
   facet_wrap(~Player) + 
-  ggtitle("Bids in Dark Grey: Map 1")
+  ggtitle("Bids in Dark Grey: Gerry_B")
 g1.2 <- ggplot(df, aes(x = ELG_1)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80) +
   facet_wrap(~Player) + 
-  ggtitle("Bids in Light Grey: Map 1")
+  ggtitle("Bids in Light Grey: Gerry_B")
 g1.3 <- ggplot(df, aes(x = EW_1)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in White: Map 1")
+  ggtitle("Bids in White: Gerry_B")
 
 figure <- ggarrange(g1.1, g1.2, g1.3,
                     labels = c("A", "B", "C"),
@@ -230,7 +230,7 @@ figure
 
 \newpage
   
-Map 2
+$Symmetric_{1,1}$
 
 
 ```{r, message=F, echo=F}
@@ -239,17 +239,17 @@ g2.1 <- ggplot(df, aes(x = EDG_2)) +
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Dark Grey: Map 2")
+  ggtitle("Bids in Dark Grey: Symm_1_1")
 g2.2 <- ggplot(df, aes(x = ELG_2)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Light Grey: Map 2")
+  ggtitle("Bids in Light Grey: Symm_1_1")
 g2.3 <- ggplot(df, aes(x = EW_2)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in White: Map 2")
+  ggtitle("Bids in White: Symm_1_1")
 
 figure.2 <- ggarrange(g2.1, g2.2, g2.3,
                     labels = c("A", "B", "C"),
@@ -259,7 +259,7 @@ figure.2
 
 \newpage
 
-Map 3
+$Symmetric_{1,3}$
 
 
 ```{r, message=F, echo=F}
@@ -268,17 +268,17 @@ g3.1 <- ggplot(df, aes(x = EDG_3)) +
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Dark Grey: Map 3")
+  ggtitle("Bids in Dark Grey: Symm_1_3")
 g3.2 <- ggplot(df, aes(x = ELG_3)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Light Grey: Map 3")
+  ggtitle("Bids in Light Grey: Symm_1_3")
 g3.3 <- ggplot(df, aes(x = EW_3)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 60, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in White: Map 3")
+  ggtitle("Bids in White: Symm_1_3")
 
 figure.3 <- ggarrange(g3.1, g3.2, g3.3,
                     labels = c("A", "B", "C"),
@@ -288,7 +288,7 @@ figure.3
 
 \newpage
 
-Map 4
+$Symmetric_{3,1}$
 
 
 ```{r, message=F, echo=F}
@@ -297,17 +297,17 @@ g4.1 <- ggplot(df, aes(x = EDG_4)) +
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Dark Grey: Map 4")
+  ggtitle("Bids in Dark Grey: Symm_3_1")
 g4.2 <- ggplot(df, aes(x = ELG_4)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Light Grey: Map 4")
+  ggtitle("Bids in Light Grey: Symm_3_1")
 g4.3 <- ggplot(df, aes(x = EW_4)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in White: Map 4")
+  ggtitle("Bids in White: Symm_3_1")
 
 figure.4 <- ggarrange(g4.1, g4.2, g4.3,
                     labels = c("A", "B", "C"),
@@ -317,7 +317,7 @@ figure.4
 
 \newpage
 
-Map 5
+Gerry_A
 
 
 ```{r, message=F, echo=F}
@@ -326,17 +326,17 @@ g5.1 <- ggplot(df, aes(x = EDG_5)) +
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Dark Grey: Map 5")
+  ggtitle("Bids in Dark Grey: Gerry_A")
 g5.2 <- ggplot(df, aes(x = ELG_5)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 0, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in Light Grey: Map 5")
+  ggtitle("Bids in Light Grey: Gerry_A")
 g5.3 <- ggplot(df, aes(x = EW_5)) + 
   stat_ecdf(geom = "step") + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) + 
-  ggtitle("Bids in White: Map 5")
+  ggtitle("Bids in White: Gerry_A")
 
 figure.5 <- ggarrange(g5.1, g5.2, g5.3,
                     labels = c("A", "B", "C"),
@@ -346,7 +346,7 @@ figure.5
 
 \newpage
 
-Recall, Player A should pick Map 5 and Player B should pick Map 1 if they are choosing the map that gives them the best chance of winning.
+Recall, Player A should pick Gerry_A and Player B should pick Gerry_B if they are choosing the map that gives them the best chance of winning.
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 stage_2 <- df %>% subset(Period > 24 & Period < 28) %>% 
@@ -357,7 +357,13 @@ library(raster)
 mode_df <- stage_2 %>% group_by(subject.id, Player) %>% 
   summarise(mode.map = modal(Map_Selection, ties = 'random'))
 
-map_mode_bar <- ggplot(mode_df, aes(x=mode.map, fill = Player, color = Player)) + 
+mode_df.v1 <- mode_df %>%
+  mutate(renamed.mode.map = ifelse(mode.map==1, "Gerry_B",
+                                   ifelse(mode.map==2, "Symm_1_1",
+                                          ifelse(mode.map==3, "Symm_1_3",
+                                                 ifelse(mode.map==4, "Symm_3_1", "Gerry_A")))))
+
+map_mode_bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map, fill = Player, color = Player)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
 map_mode_bar + ggtitle("Modal Map Selection in Stage 2")
 
@@ -375,19 +381,25 @@ Notice, in the below figures the singular choice of -99 represents the individua
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 # Create "last_period" as an empty vector and extract period 28 from each sessions
-last_period <-subset(df, Period=="28")
+last_period <- subset(df, Period=="28")
 
 last_period$Map_Selection <- as.character(last_period$Map_Selection)
 last_period$Bug <- ifelse(last_period$Player == last_period$LType, "No", "Yes")
 
+last_period.v1 <- last_period %>%
+  mutate(renamed.map.selection = ifelse(Map_Selection==1, "Gerry_B",
+                                   ifelse(Map_Selection==2, "Symm_1_1",
+                                          ifelse(Map_Selection==3, "Symm_1_3",
+                                                 ifelse(Map_Selection==4, "Symm_3_1", "Gerry_A")))))
+
 # Adding filter here to remove the guy who left the session while choosing a map
-last_period %>% filter(Map_Selection != "-99") %>%
-  ggplot(aes(x=Map_Selection)) +
+last_period.v1 %>% filter(renamed.map.selection != "-99") %>%
+  ggplot(aes(x=renamed.map.selection)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 
 # Adding filter here to remove the guy who left the session while choosing a map
-last_period %>% filter(Map_Selection != "-99") %>%
-  ggplot(aes(x=Map_Selection, fill = Player, color = Player)) +
+last_period.v1 %>% filter(renamed.map.selection != "-99") %>%
+  ggplot(aes(x=renamed.map.selection, fill = Player, color = Player)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity")
 ```
 
@@ -411,7 +423,7 @@ ggplot(only.4, aes(x = as.numeric(Effort), size = "1")) +
   stat_ecdf(aes(colour=District)) +
   geom_vline(xintercept = 10, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~Player) +
-  ggtitle("Map 4") + guides(size = F)
+  ggtitle("Symm_3_1") + guides(size = F)
 ```
 
 
@@ -423,7 +435,7 @@ ggplot(df_all_cdf %>%
   stat_ecdf(aes(colour=Player)) +
   geom_vline(xintercept = 10, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~District)+
-  ggtitle("Map 4 by District") +
+  ggtitle("Symm_3_1 by District") +
   guides(size = F)
 ```
 
@@ -446,14 +458,14 @@ par(mfrow = c(1, 2))
 ggplot(df_map_2 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
-  ggtitle("Disaggregated Map 2: White District") + 
+  ggtitle("Symm_1_1: White District") + 
   guides(size = F)
 
 # Bidding in Map 3 White District
 ggplot(df_map_3 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
   geom_vline(xintercept = 30, linetype = "dashed") + xlim(0,80)+
-  ggtitle("Disaggregated Map 3: White District") + 
+  ggtitle("Symm_1_3: White District") + 
   guides(size = F)
 ```
 
@@ -503,7 +515,7 @@ To be added as of 2021-04-07
 
 [DONE]- One other small improvement to all the CDF figures would be to add a vertical line at the theoretical prediction for that map. 
 
-[DONE]- It looks like on map 4 there is a fair amount of zero bids placed on each map. My guess is that we have lots of instances where people bid on ONLY TWO MAPS. Could you find the proportions of cases (bid tripled by a person in a period) in map 4 where the person bid 0 on all three districts (that is in a period bid 0,0,0), bid 0 on one district (so 0,x,y or x,0,y, or x,y,0 for x,y>0), bid 0 on two districts, and bid 0 on none of the districts?  My guess is that there are lots of cases where they bid 0 on one map.
+[DONE]- It looks like on Symm_3_1 there is a fair amount of zero bids placed on each map. My guess is that we have lots of instances where people bid on ONLY TWO MAPS. Could you find the proportions of cases (bid tripled by a person in a period) in Symm_3_1 where the person bid 0 on all three districts (that is in a period bid 0,0,0), bid 0 on one district (so 0,x,y or x,0,y, or x,y,0 for x,y>0), bid 0 on two districts, and bid 0 on none of the districts?  My guess is that there are lots of cases where they bid 0 on one map.
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 map_four_bidding <- df %>% dplyr::select(Session, Period, Subject, Player, EDG_4, ELG_4, EW_4)
@@ -531,7 +543,7 @@ summarize(map_four_bidding, n.records = n(),
 
 *************
 
-[DONE]- Look at "spread" of own bids across map 4 (max bid in any district of Map 4 - min bid in any district in Map 4); we'd like to see this overall (graph?) and just in the cases they bid a positive amount on everything then, for the case they only bid on 2, look at the max minus the median
+[DONE]- Look at "spread" of own bids across Symm_3_1 (max bid in any district of Symm_3_1 - min bid in any district in Symm_3_1); we'd like to see this overall (graph?) and just in the cases they bid a positive amount on everything then, for the case they only bid on 2, look at the max minus the median
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 ## Took way too long to figure this out (~2 hours)
@@ -553,18 +565,22 @@ map_four_bidding$districts.bid <- factor(map_four_bidding$districts.bid,        
                          levels = c("Zero", "One", "Two", "Three"))
 
 ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
-  ggtitle("Unadjusted Spread")
+    stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80) +
+  labs(title = "Unadjusted Spread",
+                             subtitle = "Symm_3_1")
+
+
 ```
 
-Separate graphs for bidding in two and separate for bidding in three (maybe under table with pct of Zero, One, Two, and Three bids in           Symmetric_Map_3,1)
+Separate graphs for bidding in two and separate for bidding in three (maybe under table with pct of Zero, One, Two, and Three bids in Symmetric_Map_3,1)
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
   ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
   facet_wrap(~districts.bid) +
-  ggtitle("Unadjusted Spread")
+  labs(title = "Unadjusted Spread",
+                             subtitle = "Symm_3_1")
 
 ```
 
@@ -611,13 +627,15 @@ adjusted_map_four_bidding$districts.bid <- factor(adjusted_map_four_bidding$dist
 
 ggplot(adjusted_map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.bid)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
-  ggtitle("Adjusted Spread")
+  labs(title = "Adjusted Spread",
+                             subtitle = "Symm_3_1")
 
 adjusted_map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
   ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
   facet_wrap(~districts.bid) +
-  ggtitle("Adjusted Spread")
+  labs(title = "Adjusted Spread",
+                             subtitle = "Symm_3_1")
 ```
 
 [DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
@@ -697,11 +715,16 @@ long_pairs_df <- df_pair_totals %>%
   gather(District, Pair_Effort, Pair_5:Pair_1)
 
 cleaned_pairs <- long_pairs_df %>% separate(District, c("Pairs", "Map"))
+cleaned_pairs <- cleaned_pairs %>%
+  mutate(renamed.map = ifelse(Map==1, "Gerry_B",
+                                   ifelse(Map==2, "Symm_1_1",
+                                          ifelse(Map==3, "Symm_1_3",
+                                                 ifelse(Map==4, "Symm_3_1", "Gerry_A")))))
 
 ## only look at subject == c(1,2,3,4) since we'd repeat the other metrics
 ggplot(cleaned_pairs %>%
          filter(Subject == c(1,2,3,4)), aes(x = as.numeric(Pair_Effort), size = "1")) +
-  stat_ecdf(aes(colour = Map)) + 
+  stat_ecdf(aes(colour = renamed.map)) + 
   xlim(0,80) +
   ggtitle("Pair Total Bidding by Map") +
   guides(size = F)
@@ -718,10 +741,10 @@ time_series_avg <- df_clean %>%
                             ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
          Choice = ifelse(Advantage == "Adv", "Adv", 
                          ifelse(Advantage == "Dis.adv", "Dis", 
-                                ifelse(Map == 3, "3 White", 
-                                       ifelse(Map == 2, "2 White",
-                                              ifelse(Map == 4 & District == "EW", "4 EW",
-                                                     ifelse(Map == 4 & District == "EDG", "4 EDG", "4 ELG")))))))
+                                ifelse(Map == 3, "Symm_1_3 White", 
+                                       ifelse(Map == 2, "Symm_1_1 White",
+                                              ifelse(Map == 4 & District == "EW", "Symm_3_1 EW",
+                                                     ifelse(Map == 4 & District == "EDG", "Symm_3_1 EDG", "Symm_3_1 ELG")))))))
 
 # Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
 session.level.ts.avgs <- time_series_avg %>% filter(Period < 28, District == c("EW","EDG","ELG")) %>% 
@@ -875,12 +898,27 @@ mode_df_with_end <- inner_join(mode_df,stage_3, copied = F) %>%
   rename(final.map.choice = Map_Selection) %>%
   mutate(spillover = ifelse(mode.map == final.map.choice & gerry == 1, "Spillover", "No Spillover"))
 
+
+
 mode_df_with_end <- mode_df_with_end[!(mode_df_with_end$final.map.choice == -99),]
+
+mode_df_with_end <- mode_df_with_end %>%
+  mutate(final.map.choice = ifelse(final.map.choice==1, "Gerry_B",
+                                   ifelse(final.map.choice==2, "Symm_1_1",
+                                          ifelse(final.map.choice==3, "Symm_1_3",
+                                                 ifelse(final.map.choice==4, "Symm_3_1", "Gerry_A")))))
+
+mode_df_with_end <- mode_df_with_end %>%
+  mutate(mode.map = ifelse(mode.map==1, "Gerry_B",
+                                   ifelse(mode.map==2, "Symm_1_1",
+                                          ifelse(mode.map==3, "Symm_1_3",
+                                                 ifelse(mode.map==4, "Symm_3_1", "Gerry_A")))))
 
 #combine maps 1 and 5. Only color maps based off if they are potential spillovers
 mode_df_with_end <- mode_df_with_end %>%
-  mutate(adjusted.map.mode = ifelse(mode.map == '5' | mode.map == '1', "Gerry A or B", as.character(mode.map)),
-         adjusted.final.map.choice = ifelse(final.map.choice == '5' | final.map.choice == '1', "Gerry A or B", as.character(final.map.choice)))
+  mutate(adjusted.map.mode = ifelse(mode.map == 'Gerry_A' | mode.map == 'Gerry_B', "Gerry A or B", as.character(mode.map)),
+         adjusted.final.map.choice = 
+           ifelse(final.map.choice == "Gerry_A" | final.map.choice == "Gerry_B", "Gerry A or B", as.character(final.map.choice)))
 
 map_mode_with_end_bar <- 
   ggplot(mode_df_with_end, aes(x=adjusted.final.map.choice, fill = spillover, color = spillover)) +
@@ -928,7 +966,7 @@ summary(map.player.interaction)
 ```
 
 
-[]- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
+[Done?]- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
 
 (so we just want the impact on the map selection phase on the average map level bids)
 
