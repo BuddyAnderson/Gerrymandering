@@ -238,6 +238,9 @@ mode_df.v1 <- mode_df %>%
                                           ifelse(mode.map==3, "Symm_1_3",
                                                  ifelse(mode.map==4, "Symm_3_1", "Gerry_A")))))
 
+ggplot(mode_df.v1, aes(x=renamed.mode.map)) + 
+  geom_bar(width = 0.5, alpha = 0.5, position="identity")
+
 map_mode_bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map, fill = Player, color = Player)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
 map_mode_bar + ggtitle("Modal Map Selection in Stage 2")
@@ -760,7 +763,7 @@ nrow(subset(gerry_and_politics, gerry == 0 & gerry_and_politics$support_gerry ==
 
 This is for the bar graph
 
-[]- when they don't know who they are which maps are they choosing
+  - when they don't know who they are which maps are they choosing
   - distinguish b/w people choosing gerrymandered map based on if they are choosing it after having chosen it in previous periods
   - 4 bars; gerrymander A and B on one column (two colored bars; one color is "gerrymandered for self" other color "gerrymandered for other")
   - Some people like gerrymandered maps even not knowing who they are
@@ -809,46 +812,350 @@ map_mode_with_end_bar + labs(title = "Map Choice in Final Period",
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 #long_df <- df %>% dplyr::select(Session, Period, Subject, Player, Partner, LType, EDG_5:EW_1, pEDG_5:pEW_1) #%>% gather(District, Effort, EDG_5:pEW_1)
 
-regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>% 
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period <= 24) %>%
   gather(Map, Effort, TE_1:TE_5)
 
 
-regress_df <- regress_df %>% mutate(Player_B = ifelse(Player== "B", 1, 0),
-         Map_1 = ifelse(Map == "TE_1", 1, 0),
-         Map_2 = ifelse(Map == "TE_2", 1, 0),
-         Map_3 = ifelse(Map == "TE_3", 1, 0),
-         Map_4 = ifelse(Map == "TE_4", 1, 0),
-         Map_5 = ifelse(Map == "TE_5", 1, 0))
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+         
          #subject.id = Session*8-(8-Subject)
 
 
 # want to use map 2 as baseline...?? Did we decide on this or not...
 map.player.interaction <- lm(
-  Effort ~ Player_B + Map_1 + Map_1*Player_B + Map_3 + Map_3*Player_B + Map_4 + Map_4*Player_B
-  + Map_5 + Map_5*Player_B,
+  Effort ~ Player_B + Gerry_B + Gerry_B*Player_B + Symm_1_3 + Symm_1_3*Player_B + Symm_3_1 + Symm_3_1*Player_B
+  + Gerry_A + Gerry_A*Player_B,
+  data = regress_df
+  )
+
+summary(map.player.interaction)
+#summary(map.adv.interaction)
+```
+
+
+The below tells us the role does not really matter.
+
+```{r}
+library(car)
+#linearHypothesis(map.player.interaction, c("Map_5 + Player_B:Map_5 = 0"))
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_3_1 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0"))
+
+linearHypothesis(map.player.interaction, c("Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A"))
+linearHypothesis(map.player.interaction, c("Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B"))
+
+linearHypothesis(map.player.interaction, c(
+  "Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A", "Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B" ,"Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0")
+  )
+```
+
+Justified ignoring player role in comparing treatments since the joint test (that player A and B play the same) is not rejected.
+
+```{r}
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period >= 20 & Period < 25) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+map.adv.interaction <- lm(
+  Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Period + Adv*Period + Disadv*Period + Symm_1_3*Period + Symm_3_1*Period,
+  data = regress_df
+  )
+
+summary(map.adv.interaction)
+```
+
+```{r}
+linearHypothesis(map.adv.interaction, c("Symm_1_3 = 10"))
+linearHypothesis(map.adv.interaction, c("Symm_3_1 = 10")) # so map 4 is pushing expenditure up, but not as much as theory predicts
+
+linearHypothesis(map.adv.interaction, c("Symm_1_3 = Symm_3_1")) # map 4 has a larger effect than map 3 even though they're predicted to have the same effect (as shown by regression, but still worth testing)
+
+linearHypothesis(map.adv.interaction, c("Adv = Disadv"))
+
+
+# testing on periods
+linearHypothesis(map.adv.interaction, c("Adv:Period = 0", "Disadv:Period = 0", "Symm_1_3:Period = 0", "Symm_3_1:Period = 0", "Period = 0"))
+```
+
+
+
+[Done?]- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
+
+
+(so we just want the impact on the map selection phase on the average map level bids)
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+
+## updating period to include stage 2 here
+
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period > 19 & Period <= 27) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+stage_2_impact <- lm(
+  Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Adv*Stage_2_indicator + Disadv*Stage_2_indicator + Symm_1_3*Stage_2_indicator + Symm_3_1*Stage_2_indicator,
+  data = regress_df
+  )
+
+summary(stage_2_impact)
+```
+
+```{r}
+linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
+                                   "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
+```
+
+\newpage
+
+
+Redo the regressions and tests with the data from only 20 through 24 (second half of stage 1) to account for potential learning. this is because the period coefficient shows a downward trend over time.
+
+Below are the regressions and tests using only the last 5 periods from the first stage:
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period <= 24 & Period >= 20) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+         
+map.player.interaction <- lm(
+  Effort ~ Player_B + Gerry_B + Gerry_B*Player_B + Symm_1_3 + Symm_1_3*Player_B + Symm_3_1 + Symm_3_1*Player_B
+  + Gerry_A + Gerry_A*Player_B,
   data = regress_df
   )
 
 summary(map.player.interaction)
 ```
 
+and the tests for this regression:
 
-[Done?]- Regression of average bid as function of period with dummy variable for Map selection phase (periods 25,26,27)
+```{r}
+library(car)
+#linearHypothesis(map.player.interaction, c("Map_5 + Player_B:Map_5 = 0"))
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_3_1 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0"))
 
-(so we just want the impact on the map selection phase on the average map level bids)
+linearHypothesis(map.player.interaction, c("Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A"))
+linearHypothesis(map.player.interaction, c("Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B"))
+
+linearHypothesis(map.player.interaction, c(
+  "Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A", "Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B" ,"Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0")
+  )
+```
+
+The above tests allow us to ignore player role given the null hypothesis that players A and B do not differ in their behavior.
+
+That is, we can run:
+
+```{r}
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period >= 20 & Period < 25) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+map.adv.interaction <- lm(
+  Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Period + Adv*Period + Disadv*Period + Symm_1_3*Period + Symm_3_1*Period,
+  data = regress_df
+  )
+
+summary(map.adv.interaction)
+```
+
+with tests:
+
+```{r}
+linearHypothesis(map.adv.interaction, c("Symm_1_3 = 10"))
+linearHypothesis(map.adv.interaction, c("Symm_3_1 = 10")) # so map 4 is pushing expenditure up, but not as much as theory predicts
+
+linearHypothesis(map.adv.interaction, c("Symm_1_3 = Symm_3_1")) # map 4 has a larger effect than map 3 even though they're predicted to have the same effect (as shown by regression, but still worth testing)
+
+linearHypothesis(map.adv.interaction, c("Adv = Disadv"))
+
+# testing on periods
+linearHypothesis(map.adv.interaction, c("Adv:Period = 0", "Disadv:Period = 0", "Symm_1_3:Period = 0", "Symm_3_1:Period = 0", "Period = 0"))
+```
+
+Now, let's look specifically at the effect of map selection:
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-# Does average bid in each map change as a result of the period?
-# Does average bid in each district change as a result of the period?
-period.averages <- regress_df %>%
-  filter(Period < 28) %>%
-  dplyr::select(Period, Map, Effort) %>%
-  group_by(Period, Map) %>% summarise(avg.effort = mean(as.numeric(Effort))) %>%
-  mutate(Selection_Stage = ifelse(Period > 24, 1, 0))
-  
-ms.on.effort <- lm(avg.effort ~ Selection_Stage, data = period.averages)
 
-summary(ms.on.effort)
+## updating period to include stage 2 here
+
+regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period > 19 & Period <= 27) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+
+regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+stage_2_impact <- lm(
+  Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Adv*Stage_2_indicator + Disadv*Stage_2_indicator + Symm_1_3*Stage_2_indicator + Symm_3_1*Stage_2_indicator,
+  data = regress_df
+  )
+
+summary(stage_2_impact)
+```
+
+with joint test:
+
+```{r}
+linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
+                                   "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
+```
+
+\newpage
+
+Now, we need to verify the other tests still hold with this sub-sample. We might also be interested in comparing a few tables.
+
+To start:
+
+```{r}
+summarize(map_four_bidding, n.records = n(),
+          n.all.zeros = sum(all.zeros.bids),
+          n.one.district  = sum(one.bids),
+          n.two.districts = sum(two.bids),
+          n.three.districts = sum(all.three.bids),
+          pct.zeros = n.all.zeros/n.records,
+          pct.bid.one = n.one.district/n.records,
+          pct.bid.two = n.two.districts/n.records,
+          pct.bid.three = n.three.districts/n.records,
+          )
+
+# compared to 
+
+summarize(subset(map_four_bidding, Period > 19), n.records = n(),
+          n.all.zeros = sum(all.zeros.bids),
+          n.one.district  = sum(one.bids),
+          n.two.districts = sum(two.bids),
+          n.three.districts = sum(all.three.bids),
+          pct.zeros = n.all.zeros/n.records,
+          pct.bid.one = n.one.district/n.records,
+          pct.bid.two = n.two.districts/n.records,
+          pct.bid.three = n.three.districts/n.records,
+          )
+
+# the above have very little difference
+```
+
+Now, the K-S tests:
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library("stats")
+
+# Map 4 Dark Grey
+EDG4A <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "EDG" & Player == "A")[,"Effort"]
+EDG4B <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "EDG" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EDG4A)),as.numeric(unlist(EDG4B)))
+
+# Map 4 Light Grey
+ELG4A <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "ELG" & Player == "A")[,"Effort"]
+ELG4B <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "ELG" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(ELG4A)),as.numeric(unlist(ELG4B)))
+
+# Map 4 White
+EW4A <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "EW" & Player == "A")[,"Effort"]
+EW4B <- subset(df_all_cdf, Period > 19 & Map == 4 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW4A)),as.numeric(unlist(EW4B)))
+
+# Map 2 White
+EW2A <- subset(df_all_cdf, Period > 19 & Map == 2 & District == "EW" & Player == "A")[,"Effort"]
+EW2B <- subset(df_all_cdf, Period > 19 & Map == 2 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW2A)),as.numeric(unlist(EW2B)))
+
+# Map 3 White
+EW3A <- subset(df_all_cdf, Period > 19 & Map == 3 & District == "EW" & Player == "A")[,"Effort"]
+EW3B <- subset(df_all_cdf, Period > 19 &Map == 3 & District == "EW" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(EW3A)),as.numeric(unlist(EW3B)))
+
+# Advantaged
+ADV.A <- subset(dissag.df.overlay, Period > 19 & Advantage == "Adv" & Player == "A")[,"Effort"]
+ADV.B <- subset(dissag.df.overlay, Period > 19 & Advantage == "Adv" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(ADV.A)),as.numeric(unlist(ADV.B)))
+
+# Disadvantaged
+Dis.ADV.A <- subset(dissag.df.overlay, Period > 19 & Advantage == "Dis.adv" & Player == "A")[,"Effort"]
+Dis.ADV.B <- subset(dissag.df.overlay, Period > 19 & Advantage == "Dis.adv" & Player == "B")[,"Effort"]
+
+ks.test(as.numeric(unlist(Dis.ADV.A)),as.numeric(unlist(Dis.ADV.B)))
+
+# Adv vs Dis.adv
+ADV.All <- subset(dissag.df.overlay, Period > 19 & Advantage == "Adv")[,"Effort"]
+Dis.ADV.All <- subset(dissag.df.overlay, Period > 19 & Advantage == "Dis.adv")[,"Effort"]
+
+ks.test(as.numeric(unlist(ADV.All)),as.numeric(unlist(Dis.ADV.All)))
 ```
 
 
