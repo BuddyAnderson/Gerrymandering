@@ -228,9 +228,11 @@ stage_2 <- df %>% subset(Period > 24 & Period < 28) %>%
   dplyr::select(Session, Subject, Period, Player, Map_Selection) %>% 
   mutate(subject.id = Session*8-(8-Subject))
 
+
 library(raster)
 mode_df <- stage_2 %>% group_by(subject.id, Player) %>% 
-  summarise(mode.map = modal(Map_Selection, ties = 'random'))
+  summarise(mode.map = ifelse(length(unique(Map_Selection)) == 3, Map_Selection[3],modal(Map_Selection, ties = 'random')),
+            selection.tie = ifelse(length(unique(Map_Selection)) == 3,1,0))
 
 mode_df.v1 <- mode_df %>%
   mutate(renamed.mode.map = ifelse(mode.map==1, "Gerry_B",
@@ -239,7 +241,8 @@ mode_df.v1 <- mode_df %>%
                                                  ifelse(mode.map==4, "Symm_3_1", "Gerry_A")))))
 
 ggplot(mode_df.v1, aes(x=renamed.mode.map)) + 
-  geom_bar(width = 0.5, alpha = 0.5, position="identity")
+  geom_bar(width = 0.5, alpha = 0.5, position="identity") +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
 
 map_mode_bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map, fill = Player, color = Player)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
@@ -249,8 +252,8 @@ map_mode_bar + ggtitle("Modal Map Selection in Stage 2")
 #   geom_histogram(alpha = 0.5, position="identity")
 # map_mode_hist
 
-# sum(mode_df$mode.map == 1)
-
+# sum(mode_df$mode.map == 1 & mode_df$Player == "A")
+# subset(mode_df)
 ```
 
 \newpage
@@ -387,6 +390,21 @@ ggplot(dissag.df.overlay, aes(x=as.numeric(Effort), size = "1")) +
   ggtitle("Disaggregated: Advantaged vs Disadvantaged") +
   guides(size = F) + scale_fill_brewer()
 ```
+
+I'd like to know the average bid of advantaged players and the average bid of disadvantaged players.
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+dissag.df.overlay <- dissag.df.overlay %>%
+  mutate(adv = ifelse(Advantage == "Adv",1,0),
+         dis = ifelse(Advantage == "Dis.adv",1,0))
+
+dissag.df.overlay %>% filter(adv==1) %>% summarise(mean(Effort))
+dissag.df.overlay %>% filter(adv==0) %>% summarise(mean(Effort))
+
+```
+These average bids by advantaged and disadvantaged players seem odd given the difference in CDFs and the regression results below. How can we reconcile this discrepency..?
+
+
 *************
 
 To be added as of 2021-04-07
@@ -432,7 +450,8 @@ map_four_bidding <- map_four_bidding %>%
   mutate(districts.bid = ifelse(all.three.bids == 1, "Three", ifelse(two.bids == 1, "Two", ifelse(one.bids == 1, "One", "Zero"))),
          max_bid = pmax(EDG_4, ELG_4, EW_4),
          min_bid = pmin(EDG_4, ELG_4, EW_4),
-         median_bid = rowMedians(as.matrix(map_four_bidding[,c(5,6,7)])))
+         median_bid = rowMedians(as.matrix(map_four_bidding[,c(5,6,7)]))) # getting spread with "middle"
+                                                                          # value
 
 map_four_bidding <- map_four_bidding %>%
   mutate(Spread = ifelse(all.three.bids == 1, max_bid - min_bid, 
@@ -627,28 +646,98 @@ session.level.ts.avgs <- time_series_avg %>% filter(Period < 28, District == c("
   group_by(Session, Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
 
 
-
+## These time series plots are only efforst of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
 session.level.ts.avgs %>%
   ggplot(aes(x=Period, y=avg.Effort)) +
   geom_line(aes(color = as.character(Session))) + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
     scale_x_continuous(breaks=c(15:27))
 ```
+What about a time series plot with the average across all sessions?
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+time_series_avg_across_sessions <- df_clean %>% 
+  filter(((Map == 1 | Map == 5 | Map == 2 | Map == 3) & District == "EW")|(Map == 4)) %>% 
+  dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
+  mutate(Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Choice = ifelse(Advantage == "Adv", "Adv", 
+                         ifelse(Advantage == "Dis.adv", "Dis", 
+                                ifelse(Map == 3, "Symm_1_3 White", 
+                                       ifelse(Map == 2, "Symm_1_1 White",
+                                              ifelse(Map == 4 & District == "EW", "Symm_3_1 EW",
+                                                     ifelse(Map == 4 & District == "EDG", "Symm_3_1 EDG", "Symm_3_1 ELG")))))))
+
+# Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
+session.level.ts.avgs.across.sessions <- time_series_avg_across_sessions %>% filter(Period < 28, District == c("EW","EDG","ELG")) %>% 
+  group_by(Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
+
+
+## These time series plots are only efforst of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
+session.level.ts.avgs.across.sessions %>%
+  ggplot(aes(x=Period, y=avg.Effort)) +
+  geom_line() + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
+    scale_x_continuous(breaks=c(15:27))
+```
+
+The following looks at the time series plots for only non-competitive districts to support our claim that a learning effect exists.
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+time_series_avg_noncompetitive <- df_clean %>% 
+  filter((Map == 1 | Map == 5 | Map == 2 | Map == 3) & District == c("EDG","ELG")) %>% 
+  dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
+  mutate(Choice = ifelse(Map == 1 & District == "EDG", "Gerry_B EDG", 
+                         ifelse(Map == 1 & District == "ELG", "Gerry_B ELG",
+                                ifelse(Map == 5 & District == "EDG", "Gerry_A EDG",
+                                       ifelse(Map == 5 & District == "ELG", "Gerry_A ELG",
+                                              ifelse(Map == 3 & District == "EDG", "Symm_1_3 EDG",
+                                                     ifelse(Map == 3 & District == "ELG", "Symm_1_3 ELG",
+                                                     ifelse(Map == 2 & District == "EDG", "Symm_1_1 EDG","Symm_1_1 ELG"))))))))
+
+# Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
+session.level.ts.avgs.noncompetitive <- time_series_avg_noncompetitive %>% 
+  filter(Period < 29) %>% 
+  group_by(Session, Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
+
+
+## These time series plots are only efforst of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
+session.level.ts.avgs.noncompetitive %>%
+  ggplot(aes(x=Period, y=avg.Effort)) +
+  geom_line(aes(color = as.character(Session))) + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
+    scale_x_continuous(breaks=c(15:24))
+
+time_series_avg_noncompetitive %>% 
+  filter(Period < 25) %>% 
+  group_by(Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort))) %>%
+  ggplot(aes(x=Period, y=avg.Effort)) +
+  geom_line() + 
+  facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
+    scale_x_continuous(breaks=c(15:29))
+```
+NOTE: We might wish to figure out if only a few bad eggs are driving these contributions to noncompetitive districts.
 
 [DONE]- A small cosmetic point is to make sure you keep the x-axis fixed to make comparisons between graphs easier.  It is not a big deal for this, just something to do in general. In the first part of the document you have some that include 80 and some that don’t. 
 
 [DONE]- Average bid on each district on each map by role
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-head(avg.bid.map.district)
+print.data.frame(avg.bid.map.district)
 ```
 
 [DONE]- Percent gerrymandering in stage 2
+
+
+ISSUE: there seems to be a discrepency in how this is being calculated and it is coming from the use of "ties = 'random'" in the modal() command.
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 mode_df$gerry <- ifelse((mode_df$Player == 'A' & mode_df$mode.map == 5)|(mode_df$Player == 'B' & mode_df$mode.map == 1),1,0)
-# sum(mode_df$gerry)
+sum(mode_df$Player == "A" & mode_df$mode.map == 1)
+sum(mode_df$gerry)
 pct.gerry <- sum(mode_df$gerry)/64
 pct.gerry
 
+# Figure out pct of subjects gerrymandering without including those that never converge on a map
+mode_df %>% filter(selection.tie == 0) %>% 
+  group_by(gerry) %>%
+  summarise(count = n())
 # stage_2 <- stage_2 %>% mutate(gerry = ifelse((Player == 'A' & Map_Selection == 5)|(Player == 'B' & Map_Selection == 1),1,0))
 # pct.gerry.2 <- sum(stage_2$gerry)/nrow(stage_2)
 # pct.gerry.2
@@ -662,7 +751,7 @@ stage_3 <- df %>% subset(Period == 28) %>%
 
 by_map_selection_count <- stage_3 %>% group_by(Map_Selection) %>% tally()
 by_map_selection_count$pct.of.pop <- round((by_map_selection_count$n/sum(by_map_selection_count$n))*100, 0)
-by_map_selection_count
+print.data.frame(by_map_selection_count)
 ```
 
 *************
@@ -683,15 +772,34 @@ peq_response <- read_excel("PEQ_Responses.xlsx") %>%
 # and join to gerry table
 gerry_and_politics <- right_join(mode_df, peq_response, copied = F) %>%
   dplyr::select(Session, subject.id, PEQ_7, PEQ_8, gerry) %>%
-  mutate(support_gerry = ifelse(PEQ_8 == 1, "Yes", "No"))
+  mutate(support_gerry = ifelse(PEQ_8 == 1, "Yes", "No"),
+         gerry.character = ifelse(gerry == 1,"Did Gerrymander","Did not Gerrymander"))
 
+# ggplot(transform(
+#   gerry_and_politics, gerry.character=factor(gerry.character, levels=c("Did Gerrymander","Did not Gerrymander"))
+#   ), 
+#    aes(x = PEQ_7)) + 
+#   geom_histogram(aes(fill = as.character(support_gerry))) +
+#   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, size = 3, colour = "white")+
+#   labs(fill = "Do you support gerrymandering?") +
+#   facet_wrap(~gerry.character) + xlim(1,9) + scale_x_continuous(breaks=c(1:9)) + 
+#   labs(title = "Political Leaning and Gerrymandering",
+#        caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
 
-ggplot(gerry_and_politics, aes(x = PEQ_7)) + 
-  geom_histogram(aes(fill = as.character(support_gerry),color = as.character(support_gerry))) +
-  facet_wrap(~gerry)
+ggplot(transform(
+  gerry_and_politics, gerry.character=factor(gerry.character, levels=c("Did Gerrymander","Did not Gerrymander"))
+  ), aes(x=PEQ_7, fill = as.character(support_gerry))) + 
+  geom_bar(width = 0.5, alpha = 1, position="identity") +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, size = 3, colour = "white") +
+  facet_wrap(~gerry.character) + xlim(1,9) + scale_x_continuous(breaks=c(1:9)) + 
+  labs(fill = "Do you support gerrymandering?",
+       title = "Political Leaning and Gerrymandering",
+       caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
+  
 
 ggplot(gerry_and_politics, aes(x = PEQ_7)) +
-  geom_histogram(aes(fill = "PEQ_8", fill = "PEQ_8"))
+  geom_histogram(aes(fill = "PEQ_8", fill = "PEQ_8")) +
+  xlim(1,9) + scale_x_continuous(breaks=c(1:9))
 
 nrow(subset(gerry_and_politics, PEQ_7 > 5))
 
@@ -737,6 +845,8 @@ rank_support.gerry_actually.gerry
 
 
 [DONE]- Z test of whether observations are same for number of people selecting whether they support gerrymandering or not (same # of people in both camps; probably going to be diff given the distribution between y and n)
+
+This is a two sample t-test I believe
 
 (^In Sig.)
 
@@ -838,7 +948,7 @@ map.player.interaction <- lm(
   data = regress_df
   )
 
-summary(map.player.interaction)
+summary(map.player.interaction, robust = T)
 #summary(map.adv.interaction)
 ```
 
@@ -847,7 +957,8 @@ The below tells us the role does not really matter.
 
 ```{r}
 library(car)
-#linearHypothesis(map.player.interaction, c("Map_5 + Player_B:Map_5 = 0"))
+
+#linearHypothesis(map.player.interaction, c("Gerry_A + Player_B:Gerry_A = 0"))
 linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0")) ## in sig at 5%
 linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_3_1 = 0")) ## in sig at 5%
 linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0"))
@@ -864,7 +975,7 @@ Justified ignoring player role in comparing treatments since the joint test (tha
 
 ```{r}
 regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
-  filter(Period >= 20 & Period < 25) %>%
+  filter(Period >= 15 & Period < 25) %>%
   gather(Map, Effort, TE_1:TE_5)
 
 
@@ -912,7 +1023,7 @@ linearHypothesis(map.adv.interaction, c("Adv:Period = 0", "Disadv:Period = 0", "
 ## updating period to include stage 2 here
 
 regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
-  filter(Period > 19 & Period <= 27) %>%
+  filter(Period >= 15 & Period <= 27) %>%
   gather(Map, Effort, TE_1:TE_5)
 
 
@@ -936,11 +1047,32 @@ summary(stage_2_impact)
 ```
 
 ```{r}
+
+
+linearHypothesis(stage_2_impact, c("Symm_1_3 = 10"))
+linearHypothesis(stage_2_impact, c("Symm_3_1 = 10"))
+linearHypothesis(stage_2_impact, c("Symm_1_3 = Symm_3_1"))
+
 linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
                                    "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
 ```
 
 \newpage
+
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
+<!---->
 
 
 Redo the regressions and tests with the data from only 20 through 24 (second half of stage 1) to account for potential learning. this is because the period coefficient shows a downward trend over time.
@@ -949,7 +1081,7 @@ Below are the regressions and tests using only the last 5 periods from the first
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
-  filter(Period <= 24 & Period >= 20) %>%
+  filter(Period >= 20 & Period <= 24) %>%
   gather(Map, Effort, TE_1:TE_5)
 
 
@@ -996,7 +1128,7 @@ That is, we can run:
 
 ```{r}
 regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
-  filter(Period >= 20 & Period < 25) %>%
+  filter(Period >= 20 & Period <= 24) %>%
   gather(Map, Effort, TE_1:TE_5)
 
 
@@ -1066,11 +1198,16 @@ summary(stage_2_impact)
 with joint test:
 
 ```{r}
+linearHypothesis(stage_2_impact, c("Symm_1_3 = 10")) # can reject this
+linearHypothesis(stage_2_impact, c("Symm_3_1 = 10")) # can't reject this (marginally we can)
+linearHypothesis(stage_2_impact, c("Symm_3_1 = Symm_1_3")) # can safely reject they are the same
 linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
                                    "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
 ```
 
+
 \newpage
+
 
 Now, we need to verify the other tests still hold with this sub-sample. We might also be interested in comparing a few tables.
 
