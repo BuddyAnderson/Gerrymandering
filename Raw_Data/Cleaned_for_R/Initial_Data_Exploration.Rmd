@@ -271,17 +271,20 @@ last_period.v1 <- last_period %>%
   mutate(renamed.map.selection = ifelse(Map_Selection==1, "Gerry_B",
                                    ifelse(Map_Selection==2, "Symm_1_1",
                                           ifelse(Map_Selection==3, "Symm_1_3",
-                                                 ifelse(Map_Selection==4, "Symm_3_1", "Gerry_A")))))
+                                                 ifelse(Map_Selection==4, "Symm_3_1",
+                                                        ifelse(Map_Selection == 5, "Gerry_A", "No Selection"))))))
 
 # Adding filter here to remove the guy who left the session while choosing a map
-last_period.v1 %>% filter(renamed.map.selection != "-99") %>%
+last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
   ggplot(aes(x=renamed.map.selection)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity")
+    stat_count(width = 0.5, alpha = 0.5, position="identity") +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
 
 # Adding filter here to remove the guy who left the session while choosing a map
-last_period.v1 %>% filter(renamed.map.selection != "-99") %>%
+last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
   ggplot(aes(x=renamed.map.selection, fill = Player, color = Player)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity")
+    stat_count(width = 0.5, alpha = 0.5, position="identity")+
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
 ```
 
 
@@ -646,11 +649,12 @@ session.level.ts.avgs <- time_series_avg %>% filter(Period < 28, District == c("
   group_by(Session, Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
 
 
-## These time series plots are only efforst of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
+## These time series plots are only efforts of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
 session.level.ts.avgs %>%
   ggplot(aes(x=Period, y=avg.Effort)) +
   geom_line(aes(color = as.character(Session))) + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
-    scale_x_continuous(breaks=c(15:27))
+    scale_x_continuous(breaks=c(15:27)) +
+  labs(color = "Session")
 ```
 What about a time series plot with the average across all sessions?
 
@@ -727,6 +731,8 @@ print.data.frame(avg.bid.map.district)
 
 
 ISSUE: there seems to be a discrepency in how this is being calculated and it is coming from the use of "ties = 'random'" in the modal() command.
+
+ISSUE RESOLVED
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 mode_df$gerry <- ifelse((mode_df$Player == 'A' & mode_df$mode.map == 5)|(mode_df$Player == 'B' & mode_df$mode.map == 1),1,0)
 sum(mode_df$Player == "A" & mode_df$mode.map == 1)
@@ -846,9 +852,15 @@ rank_support.gerry_actually.gerry
 
 [DONE]- Z test of whether observations are same for number of people selecting whether they support gerrymandering or not (same # of people in both camps; probably going to be diff given the distribution between y and n)
 
-This is a two sample t-test I believe
+```{r}
+# Really just a two sample proportion test for proportions of Gerrymandering supporters and political leaning
 
+```
+
+This is a two sample t-test I believe.
 (^In Sig.)
+
+
 
 [DONE]- Of the people who say they don't support it, what % actually did it
 
@@ -910,7 +922,8 @@ map_mode_with_end_bar <-
   ggplot(mode_df_with_end, aes(x=adjusted.final.map.choice, fill = spillover, color = spillover)) +
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
 map_mode_with_end_bar + labs(title = "Map Choice in Final Period",
-                             subtitle = "Spillover includes only those who actually gerrymandered and chose their previously advantaged map both in stage 2 and stage 3")
+                             subtitle = "Spillover includes only those who actually gerrymandered and chose their previously advantaged map both in stage 2 and stage 3")+
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
   
 ```
 
