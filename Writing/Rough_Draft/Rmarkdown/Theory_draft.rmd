@@ -1,0 +1,20 @@
+---
+title: "Theory draft"
+author: "SunAh An"
+date: "7/11/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Theory
+
+Configuring voting districts plays an important role in determining the likelihood of a party's candidate winning in many U.S. political competitions. When choosing where and how to campaign, political parties consider the composition of voting districts. If a district leans relatively towards one political party, then an opposing political party may opt not to campaign there and instead allocate their resources to more competitive districts. 
+
+  The use of five separate maps, Gerry_A, Gerry_B, Symm_1_1, Symm_1_3, and Symm_3_1, helps us to study participant decisions on different districting maps of partisan and undecided voters. For each map a subject's probability of winning is calculated using Tullock contests and tied directly to their bids and the bids of their opponent. The functional form of these probabilities, as functions of each player's bid, differ depending on which map configuration is considered. Using these probabilities we construct a simple expected payoff maximization problem for each map and calculate the optimal bidding strategies as functions of value, $v$. In Appendix, we prove that the theoretical predictions of optimal total bidding strategies for maps Gerry_A, Gerry_B, Symm_1_1, Symm_1_3 and Symm_3_1 are $\frac{1}{4}v$, $\frac{1}{4}v$, $\frac{1}{4}v$, $\frac{3}{8}v$, and $\frac{3}{8}v$ respectively. 
+  
+  The design of maps Gerry_A, Gerry_B, Symm_1_1, and Symm_1_3 are such that only the White district actually affects the probability a player wins the contest, incentivizing players to bid zero in two other districts. Maps Symm_1_1, Symm_1_3 and Symm_3_1 are symmetric for both players. In map Symm_3_1, all three districts are competitive thus the optimal strategy is to bid $\frac{1}{8}v$ in each district, totalling $\frac{3}{8}v$. Another feature of our design is the advantaged maps where player A already occupies one of three zones in the White district in Gerry_A and similarly in Gerry_B. Interestingly the optimal bids are not player dependent for these advantaged maps. 
+  
+  Using these features of our design, we compare aforementioned theoretical predictions to actual participant decisions throughout the experiment. In the first part of map selection stage, in order to investigate if participants prefer maps that are personally advantageous, we ask participants to choose the map they would like to compete knowing their roles. Under the assumption that participants are only interested in winning the contest they should pick the map that provides them the greatest chance of winning. In other words, during Map selection stage, Player A should pick Gerry_A and Player B should choose Gerry_B. In the second part of map selection stage, we further investigate if participants prefer fair maps when they do not know their roles beforehand. We expect both players to avoid advantaged maps and choose any one of the symmetric maps, Symm_1_1, Symm_1_3 and Symm_3_1.  

@@ -242,7 +242,8 @@ mode_df.v1 <- mode_df %>%
 
 ggplot(mode_df.v1, aes(x=renamed.mode.map)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
+  xlab("Map")
 
 map_mode_bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map, fill = Player, color = Player)) + 
   geom_bar(width = 0.5, alpha = 0.5, position="identity")
@@ -278,7 +279,8 @@ last_period.v1 <- last_period %>%
 last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
   ggplot(aes(x=renamed.map.selection)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
+  xlab("Map")
 
 # Adding filter here to remove the guy who left the session while choosing a map
 last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
@@ -314,13 +316,14 @@ ggplot(only.4, aes(x = as.numeric(Effort), size = "1")) +
 3), 4), & 5) Separately I would like to overlay player A and B’s CDFs for districts 1-3 in the map where they bid on all districts since there’s no reason for these to differ. 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-ggplot(df_all_cdf %>% 
+symm.3.1.cdf.all <- ggplot(df_all_cdf %>% 
          filter(Map == 4, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort), size = "1")) +
   stat_ecdf(aes(colour=Player)) +
   geom_vline(xintercept = 10, linetype = "dashed") + xlim(0,80)+
   facet_wrap(~District)+
-  ggtitle("Symm_3_1 by District") +
+  #ggtitle("Symm_3_1 by District") +
   guides(size = F)
+symm.3.1.cdf.all
 ```
 
 \newpage
@@ -339,18 +342,19 @@ df_map_3 <- df_clean %>%
 
 par(mfrow = c(1, 2))
 # Bidding in Map 2 White District
-ggplot(df_map_2 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
+symm.1.1.cdf <- ggplot(df_map_2 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
-  ggtitle("Symm_1_1: White District") + 
+  #ggtitle("Symm_1_1: White District") + 
   guides(size = F)
-
+symm.1.1.cdf
 # Bidding in Map 3 White District
-ggplot(df_map_3 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
+symm.1.3.cdf <- ggplot(df_map_3 %>% filter(District == "EW"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
   geom_vline(xintercept = 30, linetype = "dashed") + xlim(0,80)+
-  ggtitle("Symm_1_3: White District") + 
+  #ggtitle("Symm_1_3: White District") + 
   guides(size = F)
+symm.1.3.cdf
 ```
 
 \newpage
@@ -369,13 +373,15 @@ par(mfrow = c(1, 2))
 
 ggplot(dissag.df.overlay %>% filter(Advantage == "Adv"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
-  ggtitle("Advantage Comparrison: White District") + xlim(0,80)+
+  #ggtitle("Advantage Comparrison: White District") + 
+  xlim(0,80)+
   geom_vline(xintercept = 20, linetype = "dashed") +
   guides(size = F)
 
 ggplot(dissag.df.overlay %>% filter(Advantage == "Dis.adv"), aes(x=as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=Player)) + 
-  ggtitle("Disadvantage Comparrison: White District") + xlim(0,80)+
+  #ggtitle("Disadvantage Comparrison: White District") + 
+  xlim(0,80)+
   geom_vline(xintercept = 20, linetype = "dashed") +
   guides(size = F)
 ```
@@ -386,12 +392,13 @@ ggplot(dissag.df.overlay %>% filter(Advantage == "Dis.adv"), aes(x=as.numeric(Ef
 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-ggplot(dissag.df.overlay, aes(x=as.numeric(Effort), size = "1")) +
+adv.vs.disadv.cdf <- ggplot(dissag.df.overlay, aes(x=as.numeric(Effort), size = "1")) +
   scale_color_manual(values = c("black","green")) +
   stat_ecdf(aes(colour=Advantage)) +
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
-  ggtitle("Disaggregated: Advantaged vs Disadvantaged") +
+  #ggtitle("Disaggregated: Advantaged vs Disadvantaged") +
   guides(size = F) + scale_fill_brewer()
+adv.vs.disadv.cdf
 ```
 
 I'd like to know the average bid of advantaged players and the average bid of disadvantaged players.
@@ -405,7 +412,18 @@ dissag.df.overlay %>% filter(adv==1) %>% summarise(mean(Effort))
 dissag.df.overlay %>% filter(adv==0) %>% summarise(mean(Effort))
 
 ```
-These average bids by advantaged and disadvantaged players seem odd given the difference in CDFs and the regression results below. How can we reconcile this discrepency..?
+These average bids by advantaged and disadvantaged players seem odd given the difference in CDFs and the regression results below. How can we reconcile this discrepancy..?
+
+Now let's throw together a large figure of all cdfs:
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library(grid)
+library(gridExtra)
+symm.1.1.cdf <- symm.1.1.cdf + xlab("Bid")
+symm.1.3.cdf <- symm.1.3.cdf + xlab("Bid")
+symm.3.1.cdf.all <- symm.3.1.cdf.all + xlab("Bid")
+adv.vs.disadv.cdf <- adv.vs.disadv.cdf + xlab("Bid")
+# grid.arrange(symm.1.1.cdf, symm.1.3.cdf, symm.3.1.cdf.all, adv.vs.disadv.cdf, ncol = 2)
+```
 
 
 *************
@@ -479,8 +497,7 @@ map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
   ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
   facet_wrap(~districts.bid) +
-  labs(title = "Unadjusted Spread",
-                             subtitle = "Symm_3_1")
+  labs(y = "Count", fill = "Districts with positive bids", color = "Districts with positive bids")
 
 ```
 
@@ -654,7 +671,7 @@ session.level.ts.avgs %>%
   ggplot(aes(x=Period, y=avg.Effort)) +
   geom_line(aes(color = as.character(Session))) + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
     scale_x_continuous(breaks=c(15:27)) +
-  labs(color = "Session")
+  labs(color = "Session") + ylab("Average Bid")
 ```
 What about a time series plot with the average across all sessions?
 
@@ -676,11 +693,12 @@ session.level.ts.avgs.across.sessions <- time_series_avg_across_sessions %>% fil
   group_by(Period, Choice) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
 
 
-## These time series plots are only efforst of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
-session.level.ts.avgs.across.sessions %>%
-  ggplot(aes(x=Period, y=avg.Effort)) +
-  geom_line() + facet_wrap(~Choice) + xlim(15,27) + ylim(0,60) +
-    scale_x_continuous(breaks=c(15:27))
+## These time series plots are only efforts of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
+ts.plot.whole.study <- session.level.ts.avgs.across.sessions %>%
+  ggplot(aes(x=Period, y=avg.Effort, color = Choice)) +
+  geom_line() + xlim(15,27) + ylim(0,60) +
+  scale_x_continuous(breaks=c(15:27)) +
+  labs(color = "Map and/or District", y = "Average Bid")
 ```
 
 The following looks at the time series plots for only non-competitive districts to support our claim that a learning effect exists.
@@ -797,10 +815,11 @@ ggplot(transform(
   ), aes(x=PEQ_7, fill = as.character(support_gerry))) + 
   geom_bar(width = 0.5, alpha = 1, position="identity") +
   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, size = 3, colour = "white") +
-  facet_wrap(~gerry.character) + xlim(1,9) + scale_x_continuous(breaks=c(1:9)) + 
-  labs(fill = "Do you support gerrymandering?",
-       title = "Political Leaning and Gerrymandering",
-       caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
+  facet_wrap(~gerry.character) + xlim(1,9) + scale_x_continuous(breaks=c(1:9)) +
+  xlab("Left to Right Political Identification") +
+  labs(fill = "Do you support gerrymandering?")
+       #title = "Political Leaning and Gerrymandering"
+       #caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
   
 
 ggplot(gerry_and_politics, aes(x = PEQ_7)) +
@@ -965,6 +984,14 @@ summary(map.player.interaction, robust = T)
 #summary(map.adv.interaction)
 ```
 
+Making better tables.
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library(stargazer)
+stargazer(map.player.interaction, title = "Model 1 Regression Results", single.row = T)
+```
+
+
 
 The below tells us the role does not really matter.
 
@@ -1009,6 +1036,7 @@ map.adv.interaction <- lm(
   )
 
 summary(map.adv.interaction)
+stargazer(map.adv.interaction, title = "Model 3 Regression Results", single.row = T)
 ```
 
 ```{r}
@@ -1057,6 +1085,7 @@ stage_2_impact <- lm(
   )
 
 summary(stage_2_impact)
+stargazer(stage_2_impact, title="Model 2 Regression Results", single.row = T)
 ```
 
 ```{r}
@@ -1109,13 +1138,14 @@ regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
          Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
          Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
          
-map.player.interaction <- lm(
+map.player.interaction.adj <- lm(
   Effort ~ Player_B + Gerry_B + Gerry_B*Player_B + Symm_1_3 + Symm_1_3*Player_B + Symm_3_1 + Symm_3_1*Player_B
   + Gerry_A + Gerry_A*Player_B,
   data = regress_df
   )
 
-summary(map.player.interaction)
+summary(map.player.interaction.adj)
+stargazer(map.player.interaction, map.player.interaction.adj, title = "Model 1 Regression Results", column.labels = c("w/out learning", "w/ learning"), label = "Tab:regression_1", single.row = T)
 ```
 
 and the tests for this regression:
@@ -1123,14 +1153,14 @@ and the tests for this regression:
 ```{r}
 library(car)
 #linearHypothesis(map.player.interaction, c("Map_5 + Player_B:Map_5 = 0"))
-linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0")) ## in sig at 5%
-linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_3_1 = 0")) ## in sig at 5%
-linearHypothesis(map.player.interaction, c("Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0"))
+linearHypothesis(map.player.interaction.adj, c("Player_B + Player_B:Symm_1_3 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction.adj, c("Player_B + Player_B:Symm_3_1 = 0")) ## in sig at 5%
+linearHypothesis(map.player.interaction.adj, c("Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0"))
 
-linearHypothesis(map.player.interaction, c("Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A"))
-linearHypothesis(map.player.interaction, c("Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B"))
+linearHypothesis(map.player.interaction.adj, c("Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A"))
+linearHypothesis(map.player.interaction.adj, c("Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B"))
 
-linearHypothesis(map.player.interaction, c(
+linearHypothesis(map.player.interaction.adj, c(
   "Player_B + Gerry_B + Player_B:Gerry_B = Gerry_A", "Player_B + Gerry_A + Player_B:Gerry_A = Gerry_B" ,"Player_B + Player_B:Symm_1_3 = 0", "Player_B + Player_B:Symm_3_1 = 0", "Player_B = 0")
   )
 ```
@@ -1156,26 +1186,28 @@ regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
          Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
          Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
 
-map.adv.interaction <- lm(
+map.adv.interaction.adj <- lm(
   Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Period + Adv*Period + Disadv*Period + Symm_1_3*Period + Symm_3_1*Period,
   data = regress_df
   )
 
-summary(map.adv.interaction)
+summary(map.adv.interaction.adj)
+stargazer(map.adv.interaction, map.adv.interaction.adj, title = "Model 3 Regression Results", column.labels = c("w/out learning", "w/ learning"), label = "Tab:regression_3", single.row = T)
+
 ```
 
 with tests:
 
 ```{r}
-linearHypothesis(map.adv.interaction, c("Symm_1_3 = 10"))
-linearHypothesis(map.adv.interaction, c("Symm_3_1 = 10")) # so map 4 is pushing expenditure up, but not as much as theory predicts
+linearHypothesis(map.adv.interaction.adj, c("Symm_1_3 = 10"))
+linearHypothesis(map.adv.interaction.adj, c("Symm_3_1 = 10")) # so map 4 is pushing expenditure up, but not as much as theory predicts
 
-linearHypothesis(map.adv.interaction, c("Symm_1_3 = Symm_3_1")) # map 4 has a larger effect than map 3 even though they're predicted to have the same effect (as shown by regression, but still worth testing)
+linearHypothesis(map.adv.interaction.adj, c("Symm_1_3 = Symm_3_1")) # map 4 has a larger effect than map 3 even though they're predicted to have the same effect (as shown by regression, but still worth testing)
 
-linearHypothesis(map.adv.interaction, c("Adv = Disadv"))
+linearHypothesis(map.adv.interaction.adj, c("Adv = Disadv"))
 
 # testing on periods
-linearHypothesis(map.adv.interaction, c("Adv:Period = 0", "Disadv:Period = 0", "Symm_1_3:Period = 0", "Symm_3_1:Period = 0", "Period = 0"))
+linearHypothesis(map.adv.interaction.adj, c("Adv:Period = 0", "Disadv:Period = 0", "Symm_1_3:Period = 0", "Symm_3_1:Period = 0", "Period = 0"))
 ```
 
 Now, let's look specifically at the effect of map selection:
@@ -1200,21 +1232,23 @@ regress_df <- regress_df %>% mutate(subject.id = Session*8-(8-Subject),
          Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
          Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
 
-stage_2_impact <- lm(
+stage_2_impact.adj <- lm(
   Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Adv*Stage_2_indicator + Disadv*Stage_2_indicator + Symm_1_3*Stage_2_indicator + Symm_3_1*Stage_2_indicator,
   data = regress_df
   )
 
-summary(stage_2_impact)
+summary(stage_2_impact.adj)
+stargazer(stage_2_impact, stage_2_impact.adj, title = "Model 2 Regression Results", column.labels = c("w/out learning", "w/ learning"), label = "Tab:regression_2", single.row = T)
+
 ```
 
 with joint test:
 
 ```{r}
-linearHypothesis(stage_2_impact, c("Symm_1_3 = 10")) # can reject this
-linearHypothesis(stage_2_impact, c("Symm_3_1 = 10")) # can't reject this (marginally we can)
-linearHypothesis(stage_2_impact, c("Symm_3_1 = Symm_1_3")) # can safely reject they are the same
-linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
+linearHypothesis(stage_2_impact.adj, c("Symm_1_3 = 10")) # can reject this
+linearHypothesis(stage_2_impact.adj, c("Symm_3_1 = 10")) # can't reject this (marginally we can)
+linearHypothesis(stage_2_impact.adj, c("Symm_3_1 = Symm_1_3")) # can safely reject they are the same
+linearHypothesis(stage_2_impact.adj, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
                                    "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
 ```
 
