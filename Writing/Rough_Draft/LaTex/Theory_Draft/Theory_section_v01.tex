@@ -53,21 +53,22 @@ A Theory section draft.
 
 Configuring voting districts plays an important role in determining the likelihood of a party's candidate winning in many U.S. political competitions. When choosing where and how to campaign, political parties consider the composition of voting districts. If a district leans relatively towards one political party, then an opposing political party may opt not to campaign there and instead allocate their resources to more competitive districts. 
 
-The use of five separate maps, $Gerry_A, Gerry_B, Symm_{1,1}, Symm_{1,3}$ and $Symm_{3,1}$, helps us to study participant decisions of Player A and Player B on different districting maps of partisan and undecided voters. For each map a subject's probability of winning is calculated using Tullock contests and tied directly to their bids and the bids of their opponent. The functional form of these probabilities, as functions of each player's bid, differ depending on which map configuration is considered. Using these probabilities we construct a simple expected payoff maximization problem for each map and calculate the optimal bidding strategies as functions of value, $v$. In Appendix, we show the theoretical predictions of optimal total bidding strategies and expected payoff of each player for each map. The results are displayed in Table \ref{table:opt}.
+The use of five separate maps, $Gerry_A, Gerry_B, Symm_{1,1}, Symm_{1,3}$ and $Symm_{3,1}$, helps us study participant decisions of Player A and Player B on different districting maps of partisan and undecided voters. For each map a subject's probability of winning is calculated using Tullock contests and tied directly to their bids and the bids of their opponent. The functional form of these probabilities, as functions of each player's bid, differ depending on which map configuration is considered. Using these probabilities we construct a simple expected payoff maximization problem for each map and calculate the optimal bidding strategies as functions of value, $v$. In Appendix, we show the theoretical predictions of optimal total bidding strategies and expected payoff of each player for each map. The results are displayed in Table \ref{Tab:theory_predictions}.
 \begin{table}[ht]
 \caption{Optimal Bids and Expected Payoff Results} % title of Table
 \centering % used for centering table
 \begin{tabular}{c c c c c c} % centered columns (4 columns)
 \hline\hline %inserts double horizontal lines
- & $Gerry_A$ & $Gerry_B$ & $Symm_{1,1}$ & $Symm_{1,3}$ & $Symm_{3,1}$ \\ [0.5ex] % inserts table
-%heading
-\hline % inserts single horizontal line
+ & $Gerry_A$ & $Gerry_B$ & $Symm_{1,1}$ & $Symm_{1,3}$ & $Symm_{3,1}$ \\ [0.5ex] % inserts table heading
+\hline \\[-1.8ex]
+\vspace{0.2cm}
 Opt.tot.bid & $\frac{1}{4}v$ & $\frac{1}{4}v$ & $\frac{1}{4}v$ & $\frac{3}{8}v$ & $\frac{3}{8}v$ \\ % inserting body of the table
+\vspace{0.2cm}
 $Exp.payoff_A$ & 0 & $\frac{1}{2}v$ & $\frac{1}{4}v$ & $\frac{1}{8}v$ & $\frac{1}{8}v$ \\
 $Exp.payoff_B$ & $\frac{1}{2}v$ & 0 & $\frac{1}{4}v$ & $\frac{1}{8}v$ & $\frac{1}{8}v$ \\ [1ex] % [1ex] adds vertical space
 \hline %inserts single line
 \end{tabular}
-\label{table:opt} % is used to refer this table in the text
+\label{Tab:theory_predictions} % is used to refer this table in the text
 \end{table}
 Notice that equilibrium bids at the map level are equivalent regardless of player types. That is, within $Gerry_i$ or in $Symm_{j,k}$, both players are expected to bid the same amount of effort. As we can see from the Table \ref{table:opt}, equilibrium bids vary across maps $Gerry_i$ and $Symm_{1,1}$ being socially efficient at equilibrium bids of $\frac{1}{4}v$ while $Symm_{1,3}$ and $Symm_{3,1}$ are socially inferior with equilibrium bids of $\frac{3}{8}v$. Therefore we expect to observe no effect of assignment of roles on participants decisions. The last two rows of the Table \ref{table:opt} show expected payoff of each player across maps. Although participants could potentially earn the highest expected payoff when they compete on advantaged maps $Gerry_i$, disadvantaged player could also potentially earn payoff of zero. This suggests participants who do not know their player role should wish to compete on $Symm_{1,1}$ which gives the greatest payoff of $\frac{1}{4}v$ in order to maximize their expected payoff.
 
