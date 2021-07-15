@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  14 JUL 2021 09:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  14 JUL 2021 20:38
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**Draft_01.tex
-(./Draft_01.tex
+**Draft_v01.tex
+(./Draft_v01.tex
 LaTeX2e <2018-12-01>
 (./AEA.cls
 Document Class: AEA 2011/07/24 American Economic Association Article Classes
@@ -190,8 +190,8 @@ File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 \Gin@req@height=\dimen128
 \Gin@req@width=\dimen129
 )
-(./Draft_01.aux)
-\openout1 = `Draft_01.aux'.
+No file Draft_v01.aux.
+\openout1 = `Draft_v01.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
 LaTeX Font Info:    ... okay on input line 9.
@@ -207,7 +207,6 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
 LaTeX Font Info:    ... okay on input line 9.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-
 (/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count113
@@ -272,30 +271,60 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
+
+LaTeX Warning: Reference `fig:maps' on page 1 undefined on input line 27.
+
 <images/maps.png, id=1, 875.27pt x 112.42pt>
 File: images/maps.png Graphic file (type png)
 <use images/maps.png>
 Package pdftex.def Info: images/maps.png  used on input line 30.
 (pdftex.def)             Requested size: 350.10179pt x 44.9672pt.
+
+LaTeX Warning: Reference `fig:map_bids' on page 1 undefined on input line 34.
+
 <images/map_bids.jpg, id=3, 1545.775pt x 869.2475pt>
 File: images/map_bids.jpg Graphic file (type jpg)
 <use images/map_bids.jpg>
 Package pdftex.def Info: images/map_bids.jpg  used on input line 37.
 (pdftex.def)             Requested size: 309.14952pt x 173.84642pt.
+
+LaTeX Warning: Reference `fig:info_screen' on page 1 undefined on input line 42
+.
+
 <images/informational_screen.jpg, id=4, 1545.775pt x 869.2475pt>
 File: images/informational_screen.jpg Graphic file (type jpg)
 <use images/informational_screen.jpg>
 Package pdftex.def Info: images/informational_screen.jpg  used on input line 45
 .
 (pdftex.def)             Requested size: 309.14952pt x 173.84642pt.
-
 [1
 
 {/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./image
 s/maps.png>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [2 <./images/map_bids.jpg>] [3 <./images/informational_screen.jpg>]
+ [2 <./images/map_bids.jpg>]
+
+LaTeX Warning: Reference `section:experimental_design' on page 3 undefined on i
+nput line 54.
+
+
+LaTeX Warning: Reference `section:experimental_design' on page 3 undefined on i
+nput line 54.
+
+
+LaTeX Warning: Reference `Tab:theory_predictions' on page 3 undefined on input 
+line 54.
+
+
+LaTeX Warning: Reference `Tab:theory_predictions' on page 3 undefined on input 
+line 73.
+
+[3 <./images/informational_screen.jpg>]
+
+LaTeX Warning: Reference `fig:full_bidding_time_series' on page 4 undefined on 
+input line 83.
+
 <images/full_bidding_time_series.jpeg, id=29, 748.7975pt x 511.9125pt>
 File: images/full_bidding_time_series.jpeg Graphic file (type jpg)
 <use images/full_bidding_time_series.jpeg>
@@ -303,8 +332,27 @@ Package pdftex.def Info: images/full_bidding_time_series.jpeg  used on input li
 ne 86.
 (pdftex.def)             Requested size: 374.39783pt x 255.95563pt.
 
+LaTeX Warning: Reference `fig:full_bidding_time_series' on page 4 undefined on 
+input line 90.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `Tab:pct_bid_symm31' on page 4 undefined on input line
+ 92.
+
+
+LaTeX Warning: Reference `fig:unadjusted_spread' on page 4 undefined on input l
+ine 92.
+
+
+LaTeX Warning: Reference `fig:unadjusted_spread' on page 4 undefined on input l
+ine 92.
+
+
+LaTeX Warning: Reference `fig:unadjusted_spread' on page 4 undefined on input l
+ine 92.
 
 [4]
 <images/unadjusted_spread.jpeg, id=33, 800.9925pt x 547.04375pt>
@@ -324,6 +372,13 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 116.
+
+
+LaTeX Warning: Reference `fig:cdfs' on page 5 undefined on input line 116.
+
+
+LaTeX Warning: Reference `fig:cdfs' on page 5 undefined on input line 116.
+
 <images/symm_1_1_cdf.jpeg, id=34, 602.25pt x 412.54124pt>
 File: images/symm_1_1_cdf.jpeg Graphic file (type jpg)
 <use images/symm_1_1_cdf.jpeg>
@@ -427,6 +482,10 @@ cmm/m/it/10.95 ^^L[]Gerry[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Gerry
  []
 
 
+LaTeX Warning: Reference `Tab:regression_1' on page 6 undefined on input line 1
+85.
+
+
 Underfull \vbox (badness 6792) has occurred while \output is active []
 
  [6 <./images/unadjusted_spread.jpeg>] [7]
@@ -447,9 +506,21 @@ OML/cmm/m/it/10.95 ^^L[]Symm[]Stage[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95
  []
 
 
+LaTeX Warning: Reference `subsection:Stage_2' on page 8 undefined on input line
+ 189.
+
+
+LaTeX Warning: Reference `Tab:regression_2' on page 8 undefined on input line 1
+89.
+
+
 Overfull \hbox (13.40189pt too wide) in paragraph at lines 193--222
  [] 
  []
+
+
+LaTeX Warning: Reference `Tab:regression_3' on page 8 undefined on input line 2
+23.
 
 [8 <./images/symm_1_1_cdf.jpeg> <./images/symm_1_3_cdf.jpeg> <./images/symm_3_1
 _cdf.jpeg> <./images/adv_vs_disadv_cdf.jpeg>] [9]
@@ -470,6 +541,28 @@ L/cmm/m/it/10.95 ^^L[]Symm[]Period \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L
  []
 
 
+LaTeX Warning: Reference `Tab:regression_1' on page 10 undefined on input line 
+228.
+
+
+LaTeX Warning: Reference `Tab:regression_2' on page 10 undefined on input line 
+228.
+
+
+LaTeX Warning: Reference `Tab:regression_3' on page 10 undefined on input line 
+228.
+
+
+LaTeX Warning: Reference `model_2' on page 10 undefined on input line 228.
+
+
+LaTeX Warning: Reference `model_3' on page 10 undefined on input line 228.
+
+
+LaTeX Warning: Reference `Tab:regression_3' on page 10 undefined on input line 
+228.
+
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [10]
@@ -480,14 +573,31 @@ File: images/map_choice_stage_2.jpeg Graphic file (type jpg)
 Package pdftex.def Info: images/map_choice_stage_2.jpeg  used on input line 271
 .
 (pdftex.def)             Requested size: 301.12425pt x 204.7645pt.
+
+
+LaTeX Warning: Reference `fig:map_choice_stage_2' on page 12 undefined on input
+ line 275.
+
+
+LaTeX Warning: Reference `fig:gerry_and_politics' on page 12 undefined on input
+ line 275.
+
 <images/gerry_and_politics.jpeg, id=62, 602.25pt x 410.53375pt>
 File: images/gerry_and_politics.jpeg Graphic file (type jpg)
 <use images/gerry_and_politics.jpeg>
 Package pdftex.def Info: images/gerry_and_politics.jpeg  used on input line 278
 .
 (pdftex.def)             Requested size: 301.12425pt x 205.26637pt.
- [12 <./images/map_choice_stage_2.jpeg>] [13 <./images/gerry_and_politics.jpeg>
-]
+[12 <./images/map_choice_stage_2.jpeg>]
+
+LaTeX Warning: Reference `fig:map_choice_stage_3' on page 13 undefined on input
+ line 286.
+
+
+LaTeX Warning: Reference `fig:spillover_unadjusted' on page 13 undefined on inp
+ut line 286.
+
+[13 <./images/gerry_and_politics.jpeg>]
 <images/map_choice_stage_3.jpeg, id=70, 602.25pt x 410.53375pt>
 File: images/map_choice_stage_3.jpeg Graphic file (type jpg)
 <use images/map_choice_stage_3.jpeg>
@@ -505,30 +615,36 @@ Package pdftex.def Info: images/spillover_unadjusted.jpeg  used on input line 2
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [14 <./images/map_choice_stage_3.jpeg>] [15 <./images/spillover_unadjusted.jpeg
->] (./Draft_01.aux) ) 
+>] (./Draft_v01.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
- 3583 strings out of 492616
- 55537 string characters out of 6129482
- 125058 words of memory out of 5000000
+ 3581 strings out of 492616
+ 55518 string characters out of 6129482
+ 124774 words of memory out of 5000000
  7459 multiletter control sequences out of 15000+600000
  10838 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,10n,39p,1898b,469s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2019/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmcsc10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmmi10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmr10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmr6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-r8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssb
-x10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
-10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8
-.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.
-pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pf
-b>
-Output written on Draft_01.pdf (15 pages, 837522 bytes).
+ 41i,10n,39p,1900b,469s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
+></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></
+usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></us
+r/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
+local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/loc
+al/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/
+texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local
+/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/
+texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/te
+xlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/tex
+live/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
+Output written on Draft_v01.pdf (15 pages, 838273 bytes).
 PDF statistics:
  120 PDF objects out of 1000 (max. 8388607)
  75 compressed objects within 1 object stream
