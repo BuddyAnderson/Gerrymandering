@@ -1,78 +1,84 @@
 % AER-Article.tex for AEA last revised 22 June 2011
 \documentclass[AER]{AEA}
 \usepackage{caption}
+\usepackage{longtable}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
+% The mathtime package uses a Times font instead of Computer Modern.
+% Uncomment the line below if you wish to use the mathtime package:
+%\usepackage[cmbold]{mathtime}
+% Note that miktex, by default, configures the mathtime package to use commercial fonts
+% which you may not have. If you would like to use mathtime but you are seeing error
+% messages about missing fonts (mtex.pfb, mtsy.pfb, or rmtmi.pfb) then please see
+% the technical support document at http://www.aeaweb.org/templates/technical_support.pdf
+% for instructions on fixing this problem.
+
+% Note: you may use either harvard or natbib (but not both) to provide a wider
+% variety of citation commands than latex supports natively. See below.
+
+% Uncomment the next line to use the natbib package with bibtex 
+%\usepackage{natbib}
+
+% Uncomment the next line to use the harvard package with bibtex
+%\usepackage[abbr]{harvard}
+
+% This command determines the leading (vertical space between lines) in draft mode
+% with 1.5 corresponding to "double" spacing.
 \draftSpacing{1.5}
 
 \begin{document}
 
-\title{Gerrymandering in the Laboratory}
-%\shortTitle{Draft}
-\author{An,  Anderson, and Deck}
+\title{Gerrymandering in the Laboratory: Results Section}
+%\shortTitle{Short title for running head}
+\author{An,  Anderson, and Deck\thanks{Surname1: affiliation1, address1, email1. 
+Surname2: affiliation2, address2, email2. Surname3: affiliation3, address3, email3. Acknowledgements}}
+%\date{\today}
+%\pubMonth{Month}
+%\pubYear{Year}
+%\pubVolume{Vol}
+%\pubIssue{Issue}
+%\JEL{}
+%\Keywords{}
 
 \begin{abstract}
-A rough draft.
+A results section draft.
 \end{abstract}
 
 
 \maketitle
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Experimental Design}
-\label{section:experimental_design}
-
-Using the Zurich Toolbox for Ready-made Economic Experiments (Fischbacher, 2007), or Ztree, and The TIDE Lab at The University of Alabama, we develop a setting in which subjects compete against one another across five differently configured maps for a prize of 80 lab dollars, or 20 USD. To avoid experimenter demand effects we use normative language and phrase the competition as an internal sales competition. Each round subjects are randomly matched with an opponent; one subject is Player A and the other is Player B. Subjects complete a series of training exercises in order to ensure they understand how their efforts, or bids, relate to their potential payoffs and how it is they win any given zone, district, or map. A map consists of three districts that are defined by their color: dark gray, light gray, and white. Each district contains three zones. Training exercises walk through these different concepts, testing subjects on their understanding of each and providing them an opportunity to practice, but without giving away the maps (below) on which subjects will actually compete. Player A and Player B both have three guaranteed zones in any given map. The configurations are displayed in Figure \ref{fig:maps}.
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.4]{maps.png}
-\caption{From left to right, maps $Gerry_B$, $Symm_{1,1}$, $Symm_{1,3}$, $Symm_{3,1}$, and $Gerry_A$}
-\label{fig:maps}
-\end{figure}
-For maps $Gerry_A$ and $Gerry_B$ the arrangement of the six pre-determined zones provides an advantage to Player B and Player A, respectively. Such advantages can be thought of as gerrymandering in favor of the player to whom the map grants an advantage. All other maps, as their labels suggests, are symmetric and thus offer no advantage to either player. Any zone that is not pre-determined can be thought of as being open. A subject wins an open zone with probability $\frac{e_{im}}{e_{im}+e_{jm}}$ where $e_{im}$ is the effort/bid chosen by player $i \in \{A,B\}$ in map $m \in \{Gerry_B, Symm_{1,1}, Symm_{1,3}, Symm_{3,1}, Gerry_A\}$ for $i \not= j$. Competitions for each zone are therefore of the standard Tullock variety. To win a district a subject must win 2/3 of the zones in that district. Subjects select bids for each district, not each zone, so the effort chosen for a district is the effort used when determining the probability a participant wins a singular zone within the relevant district. Figure \ref{fig:map_bids} displays the bidding process subjects complete in each round.
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.2]{map_bids.jpg}
-\caption{Bidding process for each Stage}
-\label{fig:map_bids}
-\end{figure}
-To win a map a subject must win 2/3 the districts of that map. Subjects are paid for the outcome of a randomly chosen round with each round equally likely. Total bids for any given map may not exceed the contest prize of 80 lab dollars to prevent negative payoffs.
-Participants make decisions in 28 rounds spanning three stages. After each round in Stage 1, the first 10 potentially paid rounds, a map is chosen at random and the outcome of that map determines the subjects' potential payoff for that round. This ensures subjects have proper incentive to make thoughtful decisions for each map in each round. For Stage 2, or the three rounds following Stage 1, subjects are also asked for their map preference prior to placing their effort bids in each map. In other words, subjects identify on which map they would like to compete, enabling us to identify whether participants gerrymander when given the opportunity. In Stage 2 a map is chosen at random from the map selections of paired subjects in order to maintain incentive for thoughtful decisions on every map. For the next and final round, Stage 3, subjects are told that their player role, Player A or Player B, is not yet determined, but that they must pick which map they would like to compete on nonetheless. After subjects make their map choice they are assigned a player role and must place bids with this knowledge. The stage then proceeds as Stages 1 and 2. For each Stage, after map selections and bids are made and both subjects submit their choices, the results of the contest for each map are displayed with the randomly chosen map highlighted, showcasing which map will determine the subjects' earnings should that round be selected as the paid round\footnote{The paid rounds were chosen via a die roll in front of all participants}. The information shown to subjects includes their bids for every district in every map, their opponent's bids in every district in every map, their probability of winning any given district, their probability of wining the map, and their payoff for each map. This informational screen is shown in Figure \ref{fig:info_screen}.
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.2]{informational_screen.jpg}
-\caption{Information presented to subjects at the end of each round}
-\label{fig:info_screen}
-\end{figure}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Theory}
-\label{section:Theory}
-
-In this section we define optimal bidding behavior within each of the five distinct maps. As mentioned in Section \ref{section:experimental_design}, a player wins any given map by successfully winning 2/3 of the districts within that map. Using the Tullock style probability success function also specified in Section \ref{section:experimental_design}, we determine the probability a participant wins a given map as a function of each players' bid. Solving for Nash Equilibrium bids using the subsequent expected profit function yields the theoretical predictions available in Table \ref{Tab:theory_predictions}\footnote{See Appendix for details}. Interestingly, we find that Player A and Player B maximize their expected profits by bidding equivalent amounts within any given map, including gerrymandered maps. We therefore report only one optimal bid for each map as both players bid this amount in equilibrium, but expected profits may differ depending on the relevant map's configuration.
-
-\begin{table}[ht]
-\caption{Optimal Bids and Expected Payoff Results} 
-\centering 
-\begin{tabular}{c c c c c c} 
-\hline\hline 
- & $Gerry_A$ & $Gerry_B$ & $Symm_{1,1}$ & $Symm_{1,3}$ & $Symm_{3,1}$ \\ [0.5ex]
-\hline \\[-1.8ex]
-\vspace{0.2cm}
-Opt.tot.bid & $\frac{1}{4}v$ & $\frac{1}{4}v$ & $\frac{1}{4}v$ & $\frac{3}{8}v$ & $\frac{3}{8}v$ \\
-\vspace{0.2cm}
-$Exp.payoff_A$ & 0 & $\frac{1}{2}v$ & $\frac{1}{4}v$ & $\frac{1}{8}v$ & $\frac{1}{8}v$ \\
-$Exp.payoff_B$ & $\frac{1}{2}v$ & 0 & $\frac{1}{4}v$ & $\frac{1}{8}v$ & $\frac{1}{8}v$ \\ [1ex]
-\hline 
-\end{tabular}
-\label{Tab:theory_predictions}
-\end{table}
-
-Equilibrium bids vary across maps, with $Gerry_A$, $Gerry_B$, and $Symm_{1,1}$ being socially efficient at equilibrium bids of $\frac{1}{4}v$, while $Symm_{1,3}$ and $Symm_{3,1}$ are socially inferior with equilibrium bids of $\frac{3}{8}v$\footnote{Social efficiency here implies the minimum sum of equilibrium bids within a particular map or maps}. The last two rows of Table \ref{Tab:theory_predictions} show expected payoff for each player across maps. If a participant is seeking to maximize their profit, upon entering Stage 2 they ought to select whichever map will provide them with the highest expected profit. That is, we theorize Player A selects $Gerry_A$ and Player B selects $Gerry_B$. During Stage 3, however, a player selects a map without knowing their role. If participants choose a gerrymandered map then their expected profit is $\frac{1}{4}v$ as half the time they will be the advantaged player and the other half disadvantaged. If players choose $Symm_{1,1}$ they face the same expected profit, but only under risk neutrality are these map choices equivalent in terms of player preference. The design of maps $Gerry_A, Gerry_B, Symm_{1,1}$, and $Symm_{1,3}$ are such that only the White district actually affects the probability a player wins the contest, incentivizing players to bid zero in the dark gray and light gray districts. In map $Symm_{3,1}$, all three districts are competitive and the optimal strategy is to bid $\frac{1}{8}v$ in each district, hence the total equilibrium bid of $\frac{3}{8}v$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%American Economic Review Pointers:
+%
+%\begin{itemize}
+%\item Do not use an "Introduction" heading. Begin your introductory material
+%before the first section heading.
+%
+%\item Avoid style markup (except sparingly for emphasis).
+%
+%\item Avoid using explicit vertical or horizontal space.
+%
+%\item Captions are short and go below figures but above tables.
+%
+%\item The tablenotes or figurenotes environments may be used below tables
+%or figures, respectively, as demonstrated below.
+%
+%\item If you have difficulties with the mathtime package, adjust the package
+%options appropriately for your platform. If you can't get it to work, just
+%remove the package or see our technical support document online (please
+%refer to the author instructions).
+%
+%\item If you are using an appendix, it goes last, after the bibliography.
+%Use regular section headings to make the appendix headings.
+%
+%\item If you are not using an appendix, you may delete the appendix command
+%and sample appendix section heading.
+%
+%\item Either the natbib package or the harvard package may be used with bibtex.
+%To include one of these packages, uncomment the appropriate usepackage command
+%above. Note: you can't use both packages at once or compile-time errors will result.
+%
+%\end{itemize}
 
 \section{Results}
 \label{section:results}
@@ -83,7 +89,7 @@ Equilibrium bids vary across maps, with $Gerry_A$, $Gerry_B$, and $Symm_{1,1}$ b
 To introduce our analysis of Stage 1, consider this brief qualitative summary of bidding behavior throughout the study. Figure \ref{fig:full_bidding_time_series} highlights two key features of bidding behavior. 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.5]{full_bidding_time_series}
+\includegraphics[scale=0.5]{full_bidding_ts_one_to_ten}
 \caption{Average bidding in each session and period for competitive districts}
 \label{fig:full_bidding_time_series}
 \end{figure}
@@ -128,7 +134,7 @@ As Section \{insert theory section here\} explains, there should be no distincti
         \caption{$Symm_{1,3}$} \label{fig:symm_1_3_cdf}
     \end{subfigure}
 
-    
+    %\vspace{1cm}
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \includegraphics[scale = .35]{symm_3_1_cdf.jpeg} 
@@ -285,18 +291,163 @@ We report the modal choice of participants when asked to select a map. The reaso
 
 Our analysis of Stage 3 is largely qualitative. The additional treatment in Stage 3 is map selection under a veil of ignorance. While theory suggests participants maximize expected earnings by choosing $Symm_{1,1}$ and bidding $20$, Figure \ref{fig:map_choice_stage_3} paints a much different picture. In fact, over half of all participants choose socially inefficient maps when unaware of the role they will have in the competition. Further, just under 30\% of participants select gerrymandered maps. This leads to the question: are subjects picking gerrymandered maps because they believe they are going to be in the same role as in previous periods, or are they willing to take the 50/50 chance of ending up in an advantaged map? To answer this question we depict a "spillover" effect in Figure \ref{fig:spillover_unadjusted} where spillover occurs when a participant gerrymandered in Stage 2 and picks that same map in Stage 3. We report 18\% of participants are impacted by this spillover effect and 9\% of participants are simply choosing a gerrymandered map without having chosen the same one in the pervious stage.
 
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=0.5]{map_choice_stage_3.jpeg}
 \caption{Modal choice of map for each participant in Stage 3}
 \label{fig:map_choice_stage_3}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=0.5]{spillover_unadjusted.jpeg}
 \caption{Map choice in Stage 3 by spillover identifier}
 \label{fig:spillover_unadjusted}
 \end{figure}
+
+Table \ref{Tab:all_districts_zero_avg} provides the percentage of participants who bid zero in any given district, the average bid conditional on not bidding zero, and the unconditional average bid for each district.
+
+\begin{table}
+\caption{District Statistics} 
+\begin{center}
+ \begin{tabular}{|c c c c|} 
+% \hline
+% \multicolumn{4}{|c|}{District Statistics} \\
+ \hline
+ Map and District & Percent Bidding Zero & Average Positive Bid & Unconditional Average Bid \\ [0.5ex] 
+ \hline
+ $Gerrymandered_B$ W & 6 & 40.05 & 37.73 \\
+ $Gerrymandered_B$ LG & 85 & 17.45 & 2.59 \\
+ $Gerrymandered_B$ DG & 77 & 19.84 & 4.59 \\
+  \hline
+ $Symm_{1,1}$ W & 3 & 40.35 & 39.35 \\
+ $Symm_{1,1}$ LG & 80 & 16.03 & 3.26 \\
+ $Symm_{1,1}$ DG & 76 & 19.94 & 4.80 \\
+  \hline
+ $Symm_{1,3}$ W & 3 & 44.51 & 43.40 \\
+ $Symm_{1,3}$ LG & 87 & 14.98 & 1.99 \\
+ $Symm_{1,3}$ DG & 84 & 21.10 & 3.43 \\
+  \hline
+ $Symm_{3,1}$ W & 13 & 20.38 & 17.73 \\
+ $Symm_{3,1}$ LG & 12 & 21.56 & 18.94 \\
+ $Symm_{3,1}$ DG & 16 & 21.24 & 17.92 \\
+  \hline
+ $Gerrymandered_A$ W & 6 & 39.95 & 37.57 \\
+ $Gerrymandered_A$ LG & 80 & 18.32 & 3.75 \\
+ $Gerrymandered_A$ DG & 84 & 20.96 & 3.44 \\
+ \hline
+\end{tabular}
+\label{Tab:all_districts_zero_avg}
+\end{center}
+\end{table}
+
+Table \ref{Tab:all_districts_zero_avg_stage_1_last} provides the percentage of participants who bid zero in any given district, the average bid conditional on not bidding zero, and the unconditional average bid for each district, but here we only look at the last half of Stage 1 (or periods 6-10)
+
+\begin{table}
+\caption{District Statistics: second half of Stage 1} 
+\begin{center}
+ \begin{tabular}{|c c c c|} 
+% \hline
+% \multicolumn{4}{|c|}{District Statistics} \\
+ \hline
+ Map and District & Percent Bidding Zero & Average Positive Bid & Unconditional Average Bid \\ [0.5ex] 
+ \hline
+ $Gerrymandered_B$ W & 6 & 40.21 & 37.95 \\
+ $Gerrymandered_B$ LG & 91 & 17.62 & 1.60 \\
+ $Gerrymandered_B$ DG & 83 & 21.40 & 3.68 \\
+  \hline
+ $Symm_{1,1}$ W & 3 & 41.26 & 40.23 \\
+ $Symm_{1,1}$ LG & 85 & 15.00 & 2.25 \\
+ $Symm_{1,1}$ DG & 82 & 20.56 & 3.79 \\
+  \hline
+ $Symm_{1,3}$ W & 2 & 44.37 & 43.40 \\
+ $Symm_{1,3}$ LG & 92 & 16.73 & 1.36 \\
+ $Symm_{1,3}$ DG & 89 & 23.81 & 2.68 \\
+  \hline
+ $Symm_{3,1}$ W & 12 & 19.99 & 17.68 \\
+ $Symm_{3,1}$ LG & 13 & 21.14 & 18.36 \\
+ $Symm_{3,1}$ DG & 18 & 20.63 & 16.89 \\
+  \hline
+ $Gerrymandered_A$ W & 6 & 39.88 & 37.52 \\
+ $Gerrymandered_A$ LG & 84 & 20.50 & 3.20 \\
+ $Gerrymandered_A$ DG & 88 & 22.05 & 2.62 \\
+ \hline
+\end{tabular}
+\label{Tab:all_districts_zero_avg_stage_1_last}
+\end{center}
+\end{table}
+
+
+Model \ref{Tab:regression_4} presents the results of 
+\begin{multline}\label{model_4}
+Bid = \alpha + \beta_1 Advantage + \beta_2 Disadvantage + \beta_3 Symm_{1,3} + \beta_4 Symm_{3,1} + \varepsilon
+\end{multline}
+with subject level fixed effects and standard errors clustered at the session level.
+\begin{table}[!h] \centering 
+  \caption{Model 4 Regression Results} 
+  \label{Tab:regression_4} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & Effort \\ 
+\hline \\[-1.8ex] 
+ Adv & $-$1.547 (1.030) \\ 
+  Disadv & $-$4.425$^{***}$ (1.030) \\ 
+  Symm\_1\_3 & 1.172 (1.030) \\ 
+  Symm\_3\_1 & 6.666$^{***}$ (1.030) \\ 
+ \hline \\[-1.8ex] 
+Observations & 1,600 \\ 
+R$^{2}$ & 0.076 \\ 
+Adjusted R$^{2}$ & 0.036 \\ 
+F Statistic & 31.602$^{***}$ (df = 4; 1532) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
+%Sample figure:
+%
+%\begin{figure}
+%Figure here.
+%
+%\caption{Caption for figure below.}
+%\begin{figurenotes}
+%Figure notes without optional leadin.
+%\end{figurenotes}
+%\begin{figurenotes}[Source]
+%Figure notes with optional leadin (Source, in this case).
+%\end{figurenotes}
+%\end{figure}
+%
+%Sample table:
+%
+%\begin{table}
+%\caption{Caption for table above.}
+%
+%\begin{tabular}{lll}
+%& Heading 1 & Heading 2 \\ 
+%Row 1 & 1 & 2 \\ 
+%Row 2 & 3 & 4%
+%\end{tabular}
+%\begin{tablenotes}
+%Table notes environment without optional leadin.
+%\end{tablenotes}
+%\begin{tablenotes}[Source]
+%Table notes environment with optional leadin (Source, in this case).
+%\end{tablenotes}
+%\end{table}
+
+%References here (manual or bibTeX). If you are using bibTeX, add your bib file 
+%name in place of BibFile in the bibliography command.
+% Remove or comment out the next two lines if you are not using bibtex.
+%\bibliographystyle{aea}
+%\bibliography{BibFile}
+%
+%% The appendix command is issued once, prior to all appendices, if any.
+%\appendix
+%
+%\section{Mathematical Appendix}
 
 \end{document}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  11 JUL 2021 12:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  4 AUG 2021 10:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -165,10 +165,28 @@ ze {\captionstyle \captionsize #1#2}\par \else \global \@minipagefalse \hb@xt@
 \hsize {\hfil \box \@tempboxa \hfil }\fi \vskip \belowcaptionskip .
 \c@caption@flags=\count109
 \c@ContinuedFloat=\count110
-) (/usr/local/texlive/2019/texmf-dist/tex/latex/caption/subcaption.sty
+) (/usr/local/texlive/2019/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2014/10/28 v4.11 Multi-page Table package (DPC)+ FMi change
+\LTleft=\skip50
+\LTright=\skip51
+\LTpre=\skip52
+\LTpost=\skip53
+\LTchunksize=\count111
+\LTcapwidth=\dimen128
+\LT@head=\box55
+\LT@firsthead=\box56
+\LT@foot=\box57
+\LT@lastfoot=\box58
+\LT@cols=\count112
+\LT@rows=\count113
+\c@LT@tables=\count114
+\c@LT@chunks=\count115
+\LT@p@ftn=\toks20
+)
+(/usr/local/texlive/2019/texmf-dist/tex/latex/caption/subcaption.sty
 Package: subcaption 2018/05/01 v1.1-162 Sub-captions (AR)
-\c@subfigure=\count111
-\c@subtable=\count112
+\c@subfigure=\count116
+\c@subtable=\count117
 )
 (/usr/local/texlive/2019/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
@@ -187,40 +205,45 @@ Package graphics Info: Driver file: pdftex.def on input line 99.
 (/usr/local/texlive/2019/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen128
-\Gin@req@width=\dimen129
+\Gin@req@height=\dimen129
+\Gin@req@width=\dimen130
 )
 (./Results_section_v01.aux)
 \openout1 = `Results_section_v01.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: longtable package is loaded.
+
+(/usr/local/texlive/2019/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2018/08/26 v1.4-95 longtable captions (AR)
+)
 Package caption Info: End \AtBeginDocument code.
 
 (/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count113
-\scratchdimen=\dimen130
-\scratchbox=\box55
-\nofMPsegments=\count114
-\nofMParguments=\count115
-\everyMPshowfont=\toks20
-\MPscratchCnt=\count116
-\MPscratchDim=\dimen131
-\MPnumerator=\count117
-\makeMPintoPDFobject=\count118
-\everyMPtoPDFconversion=\toks21
+\scratchcounter=\count118
+\scratchdimen=\dimen131
+\scratchbox=\box59
+\nofMPsegments=\count119
+\nofMParguments=\count120
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count121
+\MPscratchDim=\dimen132
+\MPnumerator=\count122
+\makeMPintoPDFobject=\count123
+\everyMPtoPDFconversion=\toks22
 ) (/usr/local/texlive/2019/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -272,124 +295,124 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 48.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 49.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 48.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 49.
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <6> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 48.
-<images/full_bidding_time_series.jpeg, id=1, 748.7975pt x 511.9125pt>
-File: images/full_bidding_time_series.jpeg Graphic file (type jpg)
-<use images/full_bidding_time_series.jpeg>
-Package pdftex.def Info: images/full_bidding_time_series.jpeg  used on input li
-ne 91.
-(pdftex.def)             Requested size: 374.39783pt x 255.95563pt.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 49.
+<images/full_bidding_ts_one_to_ten.jpeg, id=1, 707.64375pt x 335.2525pt>
+File: images/full_bidding_ts_one_to_ten.jpeg Graphic file (type jpg)
+<use images/full_bidding_ts_one_to_ten.jpeg>
+Package pdftex.def Info: images/full_bidding_ts_one_to_ten.jpeg  used on input 
+line 92.
+(pdftex.def)             Requested size: 353.82101pt x 167.62584pt.
  [1
 
 {/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./image
-s/full_bidding_time_series.jpeg>]
-<images/unadjusted_spread.jpeg, id=16, 800.9925pt x 547.04375pt>
+s/full_bidding_ts_one_to_ten.jpeg>]
+<images/unadjusted_spread.jpeg, id=18, 800.9925pt x 547.04375pt>
 File: images/unadjusted_spread.jpeg Graphic file (type jpg)
 <use images/unadjusted_spread.jpeg>
-Package pdftex.def Info: images/unadjusted_spread.jpeg  used on input line 116.
+Package pdftex.def Info: images/unadjusted_spread.jpeg  used on input line 117.
 
 (pdftex.def)             Requested size: 240.29959pt x 164.11438pt.
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 121.
-<images/symm_1_1_cdf.jpeg, id=17, 602.25pt x 412.54124pt>
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 122.
+<images/symm_1_1_cdf.jpeg, id=19, 602.25pt x 412.54124pt>
 File: images/symm_1_1_cdf.jpeg Graphic file (type jpg)
 <use images/symm_1_1_cdf.jpeg>
-Package pdftex.def Info: images/symm_1_1_cdf.jpeg  used on input line 126.
+Package pdftex.def Info: images/symm_1_1_cdf.jpeg  used on input line 127.
 (pdftex.def)             Requested size: 210.79065pt x 144.39159pt.
 
-Overfull \hbox (37.30116pt too wide) in paragraph at lines 126--127
+Overfull \hbox (37.30116pt too wide) in paragraph at lines 127--128
  [][] 
  []
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-27.
+28.
 See the caption package documentation for explanation.
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-27.
+28.
 See the caption package documentation for explanation.
 
-<images/symm_1_3_cdf.jpeg, id=18, 602.25pt x 412.54124pt>
+<images/symm_1_3_cdf.jpeg, id=20, 602.25pt x 412.54124pt>
 File: images/symm_1_3_cdf.jpeg Graphic file (type jpg)
 <use images/symm_1_3_cdf.jpeg>
-Package pdftex.def Info: images/symm_1_3_cdf.jpeg  used on input line 132.
+Package pdftex.def Info: images/symm_1_3_cdf.jpeg  used on input line 133.
 (pdftex.def)             Requested size: 210.79065pt x 144.39159pt.
 
-Overfull \hbox (37.30116pt too wide) in paragraph at lines 132--133
+Overfull \hbox (37.30116pt too wide) in paragraph at lines 133--134
  [][] 
  []
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-33.
+34.
 See the caption package documentation for explanation.
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-33.
+34.
 See the caption package documentation for explanation.
 
-<images/symm_3_1_cdf.jpeg, id=19, 602.25pt x 410.53375pt>
+<images/symm_3_1_cdf.jpeg, id=21, 602.25pt x 410.53375pt>
 File: images/symm_3_1_cdf.jpeg Graphic file (type jpg)
 <use images/symm_3_1_cdf.jpeg>
-Package pdftex.def Info: images/symm_3_1_cdf.jpeg  used on input line 139.
+Package pdftex.def Info: images/symm_3_1_cdf.jpeg  used on input line 140.
 (pdftex.def)             Requested size: 210.79065pt x 143.68896pt.
 
-Overfull \hbox (37.30116pt too wide) in paragraph at lines 139--140
+Overfull \hbox (37.30116pt too wide) in paragraph at lines 140--141
  [][] 
  []
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-40.
+41.
 See the caption package documentation for explanation.
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-40.
+41.
 See the caption package documentation for explanation.
 
-<images/adv_vs_disadv_cdf.jpeg, id=20, 602.25pt x 412.54124pt>
+<images/adv_vs_disadv_cdf.jpeg, id=22, 602.25pt x 412.54124pt>
 File: images/adv_vs_disadv_cdf.jpeg Graphic file (type jpg)
 <use images/adv_vs_disadv_cdf.jpeg>
-Package pdftex.def Info: images/adv_vs_disadv_cdf.jpeg  used on input line 145.
+Package pdftex.def Info: images/adv_vs_disadv_cdf.jpeg  used on input line 146.
 
 (pdftex.def)             Requested size: 210.79065pt x 144.39159pt.
 
-Overfull \hbox (37.30116pt too wide) in paragraph at lines 145--146
+Overfull \hbox (37.30116pt too wide) in paragraph at lines 146--147
  [][] 
  []
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-46.
+47.
 See the caption package documentation for explanation.
 
 
 Package caption Warning: Cannot determine current font size.
 (caption)                Try setting it with `size=' explicitly on input line 1
-46.
+47.
 See the caption package documentation for explanation.
 
 [2 <./images/unadjusted_spread.jpeg>]
-Overfull \hbox (45.65701pt too wide) detected at line 155
+Overfull \hbox (45.65701pt too wide) detected at line 156
  []$[] [] \OML/cmm/m/it/10.95 Bid \OT1/cmr/m/n/10.95 = \OML/cmm/m/it/10.95  \O
 T1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Player[] \OT1/cmr/m/n/10.95 + \OML/
 cmm/m/it/10.95 ^^L[]Gerry[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Gerry
@@ -397,12 +420,9 @@ cmm/m/it/10.95 ^^L[]Gerry[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Gerry
 .95 + \OML/cmm/m/it/10.95 ^^L[]Symm[]Player[]$ 
  []
 
-
-Underfull \vbox (badness 5077) has occurred while \output is active []
-
- [3 <./images/symm_1_1_cdf.jpeg> <./images/symm_1_3_cdf.jpeg> <./images/symm_3_
-1_cdf.jpeg> <./images/adv_vs_disadv_cdf.jpeg>] [4]
-Overfull \hbox (6.76389pt too wide) detected at line 193
+[3 <./images/symm_1_1_cdf.jpeg> <./images/symm_1_3_cdf.jpeg> <./images/symm_3_1
+_cdf.jpeg> <./images/adv_vs_disadv_cdf.jpeg>]
+Overfull \hbox (6.76389pt too wide) detected at line 194
  []$[] [] \OML/cmm/m/it/10.95 Bid \OT1/cmr/m/n/10.95 = \OML/cmm/m/it/10.95  \O
 T1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Advantage \OT1/cmr/m/n/10.95 + \OML
 /cmm/m/it/10.95 ^^L[]Disadvantage \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[
@@ -411,20 +431,20 @@ T1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Advantage \OT1/cmr/m/n/10.95 + \OML
  []
 
 
-Overfull \hbox (71.71938pt too wide) detected at line 193
+Overfull \hbox (71.71938pt too wide) detected at line 194
  []$[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]AdvantageStage[] \OT1/cmr/
 m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]DisadvantageStage[] \OT1/cmr/m/n/10.95 + \
 OML/cmm/m/it/10.95 ^^L[]Symm[]Stage[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 
 ^^L[]Symm[]Stage[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 "  $ 
  []
 
-
-Overfull \hbox (13.40189pt too wide) in paragraph at lines 198--227
+[4]
+Overfull \hbox (13.40189pt too wide) in paragraph at lines 199--228
  [] 
  []
 
 [5]
-Overfull \hbox (3.51553pt too wide) detected at line 232
+Overfull \hbox (3.51553pt too wide) detected at line 233
  []$[] [] \OML/cmm/m/it/10.95 Bid \OT1/cmr/m/n/10.95 = \OML/cmm/m/it/10.95  \O
 T1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Advantage \OT1/cmr/m/n/10.95 + \OML
 /cmm/m/it/10.95 ^^L[]Disadvantage \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[
@@ -433,75 +453,95 @@ T1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]Advantage \OT1/cmr/m/n/10.95 + \OML
  []
 
 
-Overfull \hbox (58.72597pt too wide) detected at line 232
+Overfull \hbox (58.72597pt too wide) detected at line 233
  []$[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L[]AdvantagePeriod \OT1/cmr/m
 /n/10.95 + \OML/cmm/m/it/10.95 ^^L[]DisadvantagePeriod \OT1/cmr/m/n/10.95 + \OM
 L/cmm/m/it/10.95 ^^L[]Symm[]Period \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 ^^L
 []Symm[]Period \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 "  $ 
  []
 
+<images/map_choice_stage_2.jpeg, id=36, 602.25pt x 409.53pt>
+File: images/map_choice_stage_2.jpeg Graphic file (type jpg)
+<use images/map_choice_stage_2.jpeg>
+Package pdftex.def Info: images/map_choice_stage_2.jpeg  used on input line 277
+.
+(pdftex.def)             Requested size: 301.12425pt x 204.7645pt.
+<images/gerry_and_politics.jpeg, id=37, 602.25pt x 410.53375pt>
+File: images/gerry_and_politics.jpeg Graphic file (type jpg)
+<use images/gerry_and_politics.jpeg>
+Package pdftex.def Info: images/gerry_and_politics.jpeg  used on input line 284
+.
+(pdftex.def)             Requested size: 301.12425pt x 205.26637pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [6]
-[7]
-<images/map_choice_stage_2.jpeg, id=43, 602.25pt x 409.53pt>
-File: images/map_choice_stage_2.jpeg Graphic file (type jpg)
-<use images/map_choice_stage_2.jpeg>
-Package pdftex.def Info: images/map_choice_stage_2.jpeg  used on input line 276
-.
-(pdftex.def)             Requested size: 301.12425pt x 204.7645pt.
-<images/gerry_and_politics.jpeg, id=44, 602.25pt x 410.53375pt>
-File: images/gerry_and_politics.jpeg Graphic file (type jpg)
-<use images/gerry_and_politics.jpeg>
-Package pdftex.def Info: images/gerry_and_politics.jpeg  used on input line 283
-.
-(pdftex.def)             Requested size: 301.12425pt x 205.26637pt.
- [8 <./images/map_choice_stage_2.jpeg>] [9 <./images/gerry_and_politics.jpeg>]
-<images/map_choice_stage_3.jpeg, id=52, 602.25pt x 410.53375pt>
+[7] [8 <./images/map_choice_stage_2.jpeg>]
+<images/map_choice_stage_3.jpeg, id=49, 602.25pt x 410.53375pt>
 File: images/map_choice_stage_3.jpeg Graphic file (type jpg)
 <use images/map_choice_stage_3.jpeg>
-Package pdftex.def Info: images/map_choice_stage_3.jpeg  used on input line 295
+Package pdftex.def Info: images/map_choice_stage_3.jpeg  used on input line 296
 .
 (pdftex.def)             Requested size: 301.12425pt x 205.26637pt.
-<images/spillover_unadjusted.jpeg, id=53, 602.25pt x 409.53pt>
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/spillover_unadjusted.jpeg, id=50, 602.25pt x 409.53pt>
 File: images/spillover_unadjusted.jpeg Graphic file (type jpg)
 <use images/spillover_unadjusted.jpeg>
 Package pdftex.def Info: images/spillover_unadjusted.jpeg  used on input line 3
-02.
+03.
 (pdftex.def)             Requested size: 301.12425pt x 204.7645pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[9 <./images/gerry_and_politics.jpeg>]
+Overfull \hbox (101.94046pt too wide) in paragraph at lines 313--341
+ [] 
+ []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[10 <./images/map_choice_stage_3.jpeg>] [11 <./images/spillover_unadjusted.jpeg
->] (./Results_section_v01.aux) ) 
+[10 <./images/map_choice_stage_3.jpeg> <./images/spillover_unadjusted.jpeg>]
+Overfull \hbox (101.94046pt too wide) in paragraph at lines 349--377
+ [] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[11] [12] (./Results_section_v01.aux) ) 
 Here is how much of TeX's memory you used:
- 3564 strings out of 492616
- 55198 string characters out of 6129482
- 122986 words of memory out of 5000000
- 7443 multiletter control sequences out of 15000+600000
+ 3690 strings out of 492616
+ 56970 string characters out of 6129482
+ 129466 words of memory out of 5000000
+ 7563 multiletter control sequences out of 15000+600000
  10838 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  41i,10n,39p,1731b,469s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2019/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/pub
-lic/amsfonts/cm/cmr10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmssbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmsy6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmsy8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmti10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmti8.pfb>
-Output written on Results_section_v01.pdf (11 pages, 491078 bytes).
+</usr/local/texlive/2019/texmf-dist/font
+s/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2019/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2019/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2019/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmti10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmti8.pfb>
+Output written on Results_section_v01.pdf (12 pages, 479884 bytes).
 PDF statistics:
- 102 PDF objects out of 1000 (max. 8388607)
- 65 compressed objects within 1 object stream
+ 105 PDF objects out of 1000 (max. 8388607)
+ 67 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  51 words of extra memory for PDF output out of 10000 (max. 10000000)
 

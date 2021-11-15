@@ -1,6 +1,7 @@
 % AER-Article.tex for AEA last revised 22 June 2011
 \documentclass[AER]{AEA}
 \usepackage{caption}
+\usepackage{longtable}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
@@ -88,7 +89,7 @@ A results section draft.
 To introduce our analysis of Stage 1, consider this brief qualitative summary of bidding behavior throughout the study. Figure \ref{fig:full_bidding_time_series} highlights two key features of bidding behavior. 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.5]{full_bidding_time_series}
+\includegraphics[scale=0.5]{full_bidding_ts_one_to_ten}
 \caption{Average bidding in each session and period for competitive districts}
 \label{fig:full_bidding_time_series}
 \end{figure}
@@ -290,20 +291,122 @@ We report the modal choice of participants when asked to select a map. The reaso
 
 Our analysis of Stage 3 is largely qualitative. The additional treatment in Stage 3 is map selection under a veil of ignorance. While theory suggests participants maximize expected earnings by choosing $Symm_{1,1}$ and bidding $20$, Figure \ref{fig:map_choice_stage_3} paints a much different picture. In fact, over half of all participants choose socially inefficient maps when unaware of the role they will have in the competition. Further, just under 30\% of participants select gerrymandered maps. This leads to the question: are subjects picking gerrymandered maps because they believe they are going to be in the same role as in previous periods, or are they willing to take the 50/50 chance of ending up in an advantaged map? To answer this question we depict a "spillover" effect in Figure \ref{fig:spillover_unadjusted} where spillover occurs when a participant gerrymandered in Stage 2 and picks that same map in Stage 3. We report 18\% of participants are impacted by this spillover effect and 9\% of participants are simply choosing a gerrymandered map without having chosen the same one in the pervious stage.
 
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=0.5]{map_choice_stage_3.jpeg}
 \caption{Modal choice of map for each participant in Stage 3}
 \label{fig:map_choice_stage_3}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=0.5]{spillover_unadjusted.jpeg}
 \caption{Map choice in Stage 3 by spillover identifier}
 \label{fig:spillover_unadjusted}
 \end{figure}
 
+Table \ref{Tab:all_districts_zero_avg} provides the percentage of participants who bid zero in any given district, the average bid conditional on not bidding zero, and the unconditional average bid for each district.
+
+\begin{table}
+\caption{District Statistics} 
+\begin{center}
+ \begin{tabular}{|c c c c|} 
+% \hline
+% \multicolumn{4}{|c|}{District Statistics} \\
+ \hline
+ Map and District & Percent Bidding Zero & Average Positive Bid & Unconditional Average Bid \\ [0.5ex] 
+ \hline
+ $Gerrymandered_B$ W & 6 & 40.05 & 37.73 \\
+ $Gerrymandered_B$ LG & 85 & 17.45 & 2.59 \\
+ $Gerrymandered_B$ DG & 77 & 19.84 & 4.59 \\
+  \hline
+ $Symm_{1,1}$ W & 3 & 40.35 & 39.35 \\
+ $Symm_{1,1}$ LG & 80 & 16.03 & 3.26 \\
+ $Symm_{1,1}$ DG & 76 & 19.94 & 4.80 \\
+  \hline
+ $Symm_{1,3}$ W & 3 & 44.51 & 43.40 \\
+ $Symm_{1,3}$ LG & 87 & 14.98 & 1.99 \\
+ $Symm_{1,3}$ DG & 84 & 21.10 & 3.43 \\
+  \hline
+ $Symm_{3,1}$ W & 13 & 20.38 & 17.73 \\
+ $Symm_{3,1}$ LG & 12 & 21.56 & 18.94 \\
+ $Symm_{3,1}$ DG & 16 & 21.24 & 17.92 \\
+  \hline
+ $Gerrymandered_A$ W & 6 & 39.95 & 37.57 \\
+ $Gerrymandered_A$ LG & 80 & 18.32 & 3.75 \\
+ $Gerrymandered_A$ DG & 84 & 20.96 & 3.44 \\
+ \hline
+\end{tabular}
+\label{Tab:all_districts_zero_avg}
+\end{center}
+\end{table}
+
+Table \ref{Tab:all_districts_zero_avg_stage_1_last} provides the percentage of participants who bid zero in any given district, the average bid conditional on not bidding zero, and the unconditional average bid for each district, but here we only look at the last half of Stage 1 (or periods 6-10)
+
+\begin{table}
+\caption{District Statistics: second half of Stage 1} 
+\begin{center}
+ \begin{tabular}{|c c c c|} 
+% \hline
+% \multicolumn{4}{|c|}{District Statistics} \\
+ \hline
+ Map and District & Percent Bidding Zero & Average Positive Bid & Unconditional Average Bid \\ [0.5ex] 
+ \hline
+ $Gerrymandered_B$ W & 3 & 40.21 & 37.95 \\
+ $Gerrymandered_B$ LG & 45 & 17.62 & 1.60 \\
+ $Gerrymandered_B$ DG & 41 & 21.40 & 3.68 \\
+  \hline
+ $Symm_{1,1}$ W & 1 & 41.26 & 40.23 \\
+ $Symm_{1,1}$ LG & 42 & 15.00 & 2.25 \\
+ $Symm_{1,1}$ DG & 41 & 20.56 & 3.79 \\
+  \hline
+ $Symm_{1,3}$ W & 1 & 44.37 & 43.40 \\
+ $Symm_{1,3}$ LG & 46 & 16.73 & 1.36 \\
+ $Symm_{1,3}$ DG & 44 & 23.81 & 2.68 \\
+  \hline
+ $Symm_{3,1}$ W & 6 & 19.99 & 17.68 \\
+ $Symm_{3,1}$ LG & 7 & 21.14 & 18.36 \\
+ $Symm_{3,1}$ DG & 9 & 20.63 & 16.89 \\
+  \hline
+ $Gerrymandered_A$ W & 3 & 39.88 & 37.52 \\
+ $Gerrymandered_A$ LG & 42 & 20.50 & 3.20 \\
+ $Gerrymandered_A$ DG & 44 & 22.05 & 2.62 \\
+ \hline
+\end{tabular}
+\label{Tab:all_districts_zero_avg_stage_1_last}
+\end{center}
+\end{table}
+
+
+Model \ref{Tab:regression_4} presents the results of 
+\begin{multline}\label{model_4}
+Bid = \alpha + \beta_1 Advantage + \beta_2 Disadvantage + \beta_3 Symm_{1,3} + \beta_4 Symm_{3,1} + \varepsilon
+\end{multline}
+with subject level fixed effects and standard errors clustered at the session level.
+\begin{table}[!h] \centering 
+  \caption{Model 4 Regression Results} 
+  \label{Tab:regression_4} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & Effort \\ 
+\hline \\[-1.8ex] 
+ Adv & $-$1.547 (1.030) \\ 
+  Disadv & $-$4.425$^{***}$ (1.030) \\ 
+  Symm\_1\_3 & 1.172 (1.030) \\ 
+  Symm\_3\_1 & 6.666$^{***}$ (1.030) \\ 
+ \hline \\[-1.8ex] 
+Observations & 1,600 \\ 
+R$^{2}$ & 0.076 \\ 
+Adjusted R$^{2}$ & 0.036 \\ 
+F Statistic & 31.602$^{***}$ (df = 4; 1532) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
 %Sample figure:
 %
 %\begin{figure}
