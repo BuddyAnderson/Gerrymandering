@@ -20,10 +20,14 @@ Reading from left to right we have Gerry_B, Symm_1_1, Symm_1_3, Symm_3_1, and Ge
 ```{r setup, include=FALSE, warning=F, message=F}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
+library(MASS)
 library(ggplot2)
+library(viridis)
 library(dplyr)
 library(miceadds)
-
+library(stringr)
+library(gdata)
+library(latex2exp)
 
 # read in all data files for sessions 1 through 8
 for(i in 1:8) {
@@ -242,10 +246,23 @@ mode_df.v1 <- mode_df %>%
                                           ifelse(mode.map==3, "Symm_1_3",
                                                  ifelse(mode.map==4,"Symm_3_1", "Disadvantaged")))))
 
+# mode_df.v1 <- mode_df.v1 %>%
+#   mutate(New.tex.name = ifelse(renamed.mode.map=="Symm_1_3", deparse(TeX('$Sym_{1,3}$')),
+#                                ifelse(renamed.mode.map=="Symm_1_1", deparse(TeX('$Sym_{1,1}$')),
+#                                       ifelse(renamed.mode.map=="Symm_3_1", deparse(TeX('$Sym_{3,1}$')),
+#                                              ifelse(renamed.mode.map=="Advantaged", deparse(TeX('$Advantaged$')), deparse(TeX('$Disadvantaged$')))))))
 combined.bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map)) + 
-  geom_bar(width = 0.5, alpha = 0.5, position="identity", fill = "#FF6666") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) +
-  xlab("") + ylab("")
+  geom_bar(aes(y = (..count..)/sum(..count..)),width = 0.5, alpha = 0.5, position="identity", fill = "#666666") +
+  labs(
+    x = "",
+    y = ""
+  ) +
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_discrete(labels=c('Symm_1_1'= parse(text = TeX('$Sym_{1,1}$')),
+                            'Symm_1_3'= parse(text = TeX('$Sym_{1,3}$')),
+                            'Symm_3_1'= parse(text = TeX('$Sym_{3,1}$')),
+                            'Advantaged'= parse(text = TeX('$Advantaged$')),
+                            'Disadvantaged'= parse(text = TeX('$Disadvantaged$'))))
 combined.bar + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20))
 
 map_mode_bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map, fill = Player, color = Player)) + 
@@ -283,12 +300,19 @@ last_period.v1 <- last_period %>%
 #   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) +
 #   xlab("") + ylab("")
 # combined.bar + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20))
-# Adding filter here to remove the guy who left the session while choosing a map
+# Adding filter here to remove the guy who left the session while choosing a 
+
 stage3_map <- last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
   ggplot(aes(x=renamed.map.selection)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity", fill = "#FF6666") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) +
-  xlab("") + ylab("")
+  geom_bar(aes(y = (..count..)/sum(..count..)),width = 0.5, alpha = 0.5, position="identity", fill = "#666666") +
+  #geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) +
+  xlab("") + ylab("") +
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_discrete(labels=c('Symm_1_1'= parse(text = TeX('$Sym_{1,1}$')),
+                            'Symm_1_3'= parse(text = TeX('$Sym_{1,3}$')),
+                            'Symm_3_1'= parse(text = TeX('$Sym_{3,1}$')),
+                            'Gerry_A'= parse(text = TeX('$Gerry_A$')),
+                            'Gerry_B'= parse(text = TeX('$Gerry_B$'))))
 stage3_map + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20))
 
 
@@ -300,7 +324,7 @@ ggplot(data = df.stage.3.selection, aes(x = renamed.map.selection, y = Percent, 
 # Adding filter here to remove the guy who left the session while choosing a map
 last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
   ggplot(aes(x=renamed.map.selection, fill = Player, color = Player)) +
-    stat_count(width = 0.5, alpha = 0.5, position="identity")+
+    stat_count(width = 0.5, alpha = 0.5, position="identity") +
   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
 ```
 
@@ -407,13 +431,22 @@ ggplot(dissag.df.overlay %>% filter(Advantage == "Dis.adv"), aes(x=as.numeric(Ef
 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-adv.vs.disadv.cdf <- ggplot(dissag.df.overlay, aes(x=as.numeric(Effort), size = "1")) +
-  scale_color_manual(values = c("black","green")) +
+adv.vs.disadv.cdf <- ggplot(dissag.df.overlay, aes(x=as.numeric(Effort))) +
+  scale_color_manual(values = c("black","green"), labels = c("Advantaged", "Disadvantaged")) +
   stat_ecdf(aes(colour=Advantage)) +
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
-  #ggtitle("Disaggregated: Advantaged vs Disadvantaged") +
-  guides(size = F) + scale_fill_brewer()
-adv.vs.disadv.cdf
+  guides(size = F)
+adv.vs.disadv.cdf + 
+  theme(legend.title = element_blank()) +
+  xlab("Expenditure in White District") +
+  ylab("Cumulative Percentage") +
+  annotate('text', x=10, y=0.75, label = "Theoretical Prediction")
+
+# Adv vs Dis.adv
+ADV.All <- subset(dissag.df.overlay, Advantage == "Adv")[,"Effort"]
+Dis.ADV.All <- subset(dissag.df.overlay, Advantage == "Dis.adv")[,"Effort"]
+
+ks.test(as.numeric(unlist(ADV.All)),as.numeric(unlist(Dis.ADV.All)))
 ```
 
 I'd like to know the average bid of advantaged players and the average bid of disadvantaged players.
@@ -514,6 +547,28 @@ spread.map.four <- map_four_bidding %>% filter(districts.bid == c("Two","Three")
   facet_wrap(~districts.bid) +
   labs(y = "Count", fill = "Districts with positive bids", color = "Districts with positive bids")
 spread.map.four
+
+# Requested 01/07/2022: 
+# For Sym31, can you produce the following scatter plot where a person in a period is the observation.  So I think we should have 640 points.  The y coordinate equals (max expenditure on W,L,G) / (total expenditure on W,L,G) and the x coordinate equals (median expenditure on W,L,G) / (total expenditure on W,L,G).  Please add the line y=1-x for x between 0 and .5 and add a forty five degree line between (0,0) and (.5,.5). This is a candidate to replace the spread figure.  The individual dots should be small and we may need to jitter if there is a lot of overlap. 
+scatter.spread <- map_four_bidding %>%
+  filter(Period <= 24) %>%
+  mutate(subject.id = Session*8-(8-Subject),
+         total.bid  = (EDG_4 + ELG_4 + EW_4),
+         max.over.total = max_bid/total.bid,
+         med.over.total = median_bid/total.bid,
+         ) %>%
+  ggplot(aes(x = med.over.total, y = max.over.total))
+scatter.spread + 
+  # geom_count(aes(color = ..n..)) +
+  geom_point() +
+  labs(x = "Median District Expenditure Relative to Total Expenditure", 
+       y = " Maximum District Expenditure Relative to Total Expenditure") +
+  scale_color_gradient(low="blue", high="red") +
+  xlim(0,0.75) +
+  ylim(0,1) +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_jitter(width = 0.025, height = 0.025) +
+  coord_fixed()
 ```
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
@@ -732,6 +787,7 @@ ts.plot.whole.study <- session.level.ts.avgs.across.sessions %>%
   geom_line() + xlim(1,10) + ylim(0,60) +
   scale_x_continuous(breaks=c(1:10)) +
   labs(color = "Map and/or District", y = "Average Bid")
+ts.plot.whole.study
 
 ts.each.map.each.dist <- df_clean %>% 
   dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
@@ -740,10 +796,101 @@ ts.each.map.each.dist <- df_clean %>%
 
 # Light grey line for Light Gray district, Dark grey line for Dark gray district, dashed line for white district
 # (we could make background different color to use a white line, but that'd look bad in black and white print)
-ts.each.map.each.dist %>% filter(District == c("EW","EDG", "ELG")) %>% group_by(Period, Map, District) %>% summarise(avg.Effort = mean(Effort)) %>%
-  ggplot(aes(x=Period, y=avg.Effort, color = District)) +
-  geom_line() + xlim(1,10) + ylim(0,60) +
-  scale_x_continuous(breaks=c(1:10)) + facet_wrap(~Map)
+ts.each.map.each.dist <- ts.each.map.each.dist %>%
+  mutate(Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Gerry Advantaged",
+                      ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Gerry Disadvantaged",
+                             ifelse(Map == 2, "Symm_1_1",
+                                    ifelse(Map == 3, "Symm_1_3", "Symm_3_1")))),
+         District = ifelse(District == "EDG", "Dark Gray",
+                           ifelse(District == "ELG", "Light Gray", 
+                                  ifelse(District == "EW","White", "Wrong"))))
+
+for.plot.of.ts.each.map.and.district <- ts.each.map.each.dist %>% filter(District == c("White","Dark Gray", "Light Gray"), Period >= 15, Period <=24) %>% group_by(Period, Map, District) %>% summarise(avg.Effort = mean(Effort)) 
+
+# For Figure 3 please make the following cosmetic changes: a) make the lines thinner √, b) make white dot dot rather than dash dot √, c) make background white not gray , d) remove the labels from inside the figure and put labels on the panels, e) put just gerrymandered treatments on first row and sym treatments on second row with each row centered, f) Use treatment names as shown in Table 2.
+ts.from.01.09.2022 <- ggplot(for.plot.of.ts.each.map.and.district, aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Effort") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="top", text = element_text(size = 12)) +
+  facet_wrap(~Map)
+
+ts.by.map.and.district.gerry.adv <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Gerry Advantaged") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.gerry.disadv <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Gerry Disadvantaged") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="right", text = element_text(size = 12))
+
+ts.by.map.and.district.sym11 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_1") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.sym13 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_3") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="bottom", text = element_text(size = 12))
+
+ts.by.map.and.district.sym13.alternative <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_3") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.sym31 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_3_1") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District, color = District)) +
+  geom_line(aes(linetype=District)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#333333','#999999', '#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+# saved with width 300 height 175
+ts.by.map.and.district.gerry.adv
+ts.by.map.and.district.gerry.disadv
+ts.by.map.and.district.sym11
+ts.by.map.and.district.sym13
+ts.by.map.and.district.sym13.alternative
+ts.by.map.and.district.sym31
 ```
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
@@ -863,14 +1010,33 @@ gerry_and_politics <- right_join(mode_df, peq_response, copied = F) %>%
 #   labs(title = "Political Leaning and Gerrymandering",
 #        caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
 
+# > stage3_map <- last_period.v1 %>% filter(renamed.map.selection != "No Selection") %>%
+# +   ggplot(aes(x=renamed.map.selection)) +
+# +   geom_bar(aes(y = (..count..)/sum(..count..)),width = 0.5, alpha = 0.5, position="identity", fill = "#666666") +
+# +   #geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) +
+# +   xlab("") + ylab("") +
+# +   scale_y_continuous(labels=scales::percent) +
+# +   scale_x_discrete(labels=c('Symm_1_1'= parse(text = TeX('$Sym_{1,1}$')),
+# +                             'Symm_1_3'= parse(text = TeX('$Sym_{1,3}$')),
+# +                             'Symm_3_1'= parse(text = TeX('$Sym_{3,1}$')),
+# +                             'Gerry_A'= parse(text = TeX('$Gerry_A$')),
+# +                             'Gerry_B'= parse(text = TeX('$Gerry_B$'))))
+# > stage3_map + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20))
+# \textcolor{red}{For Figure \ref{fig:gerry_and_politics} rather than using counts, please use percentages.  Also, do not put the numbers in the bars as that is hard to read in a printout. We do not need to label the percentages on each bar.  Please make sure the color choices print out nicely in black and white or use black and white bars.  Please capitalize not in Did Not Gerrymander. }
+gerry_and_politics$gerry.character[gerry_and_politics$gerry.character=="Did not Gerrymander"] <- "Did Not Gerrymander"
+
 ggplot(transform(
-  gerry_and_politics, gerry.character=factor(gerry.character, levels=c("Did Gerrymander","Did not Gerrymander"))
+  gerry_and_politics, gerry.character=factor(gerry.character, levels=c("Did Gerrymander", "Did Not Gerrymander"))
   ), aes(x=PEQ_7, fill = as.character(support_gerry))) + 
-  geom_bar(width = 0.5, alpha = 1, position="identity") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, size = 8, colour = "white") +
-  facet_wrap(~gerry.character) + xlim(1,9) + scale_x_continuous(breaks=c(1:9)) +
-  xlab("Left to Right Political Identification") +
-  labs(fill = "Do you support gerrymandering?") + ylim(1,9) + scale_y_continuous(breaks = c(1:9))
+  geom_bar(aes(y = (..count..)/sum(..count..)), width = 0.5, alpha = 1, position="identity") +
+  #geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, size = 8, colour = "white") +
+  facet_wrap(~gerry.character) + 
+  xlim(1,9) + 
+  scale_x_continuous(breaks=c(1:9)) +
+  labs(x = "Left to Right Political Identification", y = "") +
+  labs(fill = "Do you support gerrymandering?") + ylim(1,9) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_fill_manual(values = c("No"="gray","Yes"="black"))
        #title = "Political Leaning and Gerrymandering"
        #caption = "The left and right panels represent political self-identification \n for participants who did and did not, respectively, engage in gerrymandering through map selection. \n The coloring identifies those who stated they did or didnot support gerrymandering.")
 
@@ -880,9 +1046,11 @@ ggplot(transform(
 #   xlab("") + ylab("")
 # combined.bar + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20))
 
+
 political.leaning <- ggplot(gerry_and_politics, aes(x = PEQ_7)) +
   geom_bar(width = 0.4, alpha = 0.5, position = "identity", fill = "#FF6666") +
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) + xlim(0,10) + ylab("")
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black", size = 8) + 
+  xlim(0,10) + ylab("")
 
 # aes(fill = "PEQ_8", fill = "PEQ_8", fill = "#FF6666")) +
 #   xlim(1,9) + scale_x_continuous(breaks=c(1:9))
@@ -1161,6 +1329,9 @@ linearHypothesis(stage_2_impact, c("Symm_1_3 = Symm_3_1"))
 
 linearHypothesis(stage_2_impact, c("Adv:Stage_2_indicator = 0", "Disadv:Stage_2_indicator = 0",
                                    "Symm_1_3:Stage_2_indicator = 0", "Symm_3_1:Stage_2_indicator = 0"))
+
+
+linearHypothesis(map_impact, c("Adv" = "Disadv"))
 ```
 
 \newpage
@@ -1274,10 +1445,82 @@ linearHypothesis(map.adv.interaction.adj, c("Adv = Disadv"))
 linearHypothesis(map.adv.interaction.adj, c("Adv:Period = 0", "Disadv:Period = 0", "Symm_1_3:Period = 0", "Symm_3_1:Period = 0", "Period = 0"))
 ```
 
-Now, let's look specifically at the effect of map selection:
+Now, let's look specifically at the effect of map selection.
+
+First, look only at Stage 1 data
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+stage_1_regression_data <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period >= 15 & Period <= 24) %>%
+  gather(Map, Effort, TE_1:TE_5)
+stage_1_regression_data <- stage_1_regression_data %>% mutate(subject.id = as.factor(Session*8-(8-Subject)),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
 
+stage_1_regression_data_with_learnng <- stage_1_regression_data %>% filter(Period >=20)
+##########
+map_impact_on_stage_1_no_learning <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data = stage_1_regression_data)
+
+map_impact_on_stage_1_with_learning <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data = stage_1_regression_data_with_learnng)
+########
+
+# Look at subject Fixed Effects and standard errors clustered at session level
+########
+map_impact_on_stage_1_no_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + subject.id, data = stage_1_regression_data)
+
+map_impact_on_stage_1_with_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + subject.id, data = stage_1_regression_data_with_learnng)
+
+##########
+#summary(map_impact_on_stage_1_no_learning)
+#summary(map_impact_on_stage_1_with_learning)
+#summary(map_impact_on_stage_1_no_learning_FE)
+#summary(map_impact_on_stage_1_with_learning_FE)
+
+#stargazer(map_impact_on_stage_1_no_learning, map_impact_on_stage_1_with_learning, title = "Map Impact on Stage 1 Bidding", column.labels = c("w/out learning", "w/ learning"), label = "Tab:stage_1_with_and_without_learning", single.row = T)
+
+stargazer(map_impact_on_stage_1_no_learning_FE,
+          map_impact_on_stage_1_with_learning_FE,
+          title = "Map Impact on Stage 1 Bidding (FE and Clustereed SE)",
+          column.labels = c("w/out learning", "w/ learning"),
+          label = "Tab:stage_1_with_and_without_learning_FE_CSE",
+          omit = "subject.id", single.row = T)
+
+# Must fill in clustered SE manually; can't figure out how to do this in Stargazer
+map_impact_on_stage_1_no_learning_FE <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + subject.id, cluster = "Session", data = stage_1_regression_data)
+summary(map_impact_on_stage_1_no_learning_FE)
+#summary(reg,cluster = c("class_id"))
+
+map_impact_on_stage_1_with_learning_FE <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + subject.id, cluster = "Session", data = stage_1_regression_data_with_learnng)
+summary(map_impact_on_stage_1_with_learning_FE)
+
+# Tests with NO LEARNING
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Adv = Disadv"))
+#linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = Symm_3_1"))
+
+# Tests WITH LEARNING
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Adv = Disadv"))
+#linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = Symm_3_1"))
+```
+
+
+Now, look at stage 2 impact as a dummy variable
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 ## updating period to include stage 2 here
 
 regress_df <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
@@ -1303,7 +1546,6 @@ stage_2_impact.adj <- lm(
 
 summary(stage_2_impact.adj)
 stargazer(stage_2_impact, stage_2_impact.adj, title = "Model 2 Regression Results", column.labels = c("w/out learning", "w/ learning"), label = "Tab:regression_2", single.row = T)
-
 ```
 
 with joint test:
@@ -1422,29 +1664,38 @@ stage_1 <- df %>% filter(Period <= 24 & Period >= 20) %>% dplyr::select(EDG_5:EW
 round(colMeans(stage_1), 2)
 
 
-pct.zero <- long_df %>% filter(Period <= 24 & Period >= 20) %>%
+no_partner_stats <- df_clean %>% 
+  filter(Period <= 24 & Period >= 15 & !grepl("pE", District)) %>% 
+  mutate(Fairness = 
+           ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Map = ifelse(Map == 1 |Map == 5, "gerry", Map),
+         EffortWithNAs = ifelse(Effort == 0, NA, Effort))
+
+
+#no_partner_stats$Effort[no_partner_stats$EffortWithNAs<=0] <- NA
+pct.zero.dis.adv <- no_partner_stats %>%
+  group_by(District, Map, Fairness) %>%
+  summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
+            avg.positive.bid = mean(EffortWithNAs, na.rm = T),
+            avg.bid          = mean(Effort))
+pct.zero.dis.adv
+pct.zero.dis.adv <- no_partner_stats %>%
+  filter(Period >= 20, Period <= 24) %>%
+  group_by(District, Map, Fairness) %>%
+  summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
+            avg.positive.bid = mean(EffortWithNAs, na.rm = T),
+            avg.bid          = mean(Effort))
+pct.zero.dis.adv
+
+
+pct.zero <- long_df %>% filter(Period <= 24 & Period >= 15) %>%
   group_by(District) %>% summarize(pct.bid.zero = round(sum(Effort == 0)/n(), 2))
 pct.zero
 
-# pct.stage_1.zero <- stage_1
-# pct.stage_1.zero[pct.stage_1.zero == 0] <- NA
-# summarize(pct.stage_1.zero,
-#           pct0.EDG.5 = sum(is.na(EDG_5))/n(),
-#           pct0.ELG.5 = sum(is.na(ELG_5))/n(),
-#           pct0.EW.5 = sum(is.na(EW_5))/n(),
-#           pct0.EDG.4 = sum(is.na(EDG_4))/n(),
-#           pct0.ELG.4 = sum(is.na(ELG_4))/n(),
-#           pct0.EW.4 = sum(is.na(EW_4))/n(),
-#           pct0.EDG.3 = sum(is.na(EDG_3))/n(),
-#           pct0.ELG.3 = sum(is.na(ELG_3))/n(),
-#           pct0.EW.3 = sum(is.na(EW_3))/n(),
-#           pct0.EDG.2 = sum(is.na(EDG_2))/n(),
-#           pct0.ELG.2 = sum(is.na(ELG_2))/n(),
-#           pct0.EW.2 = sum(is.na(EW_2))/n(),
-#           pct0.EDG.1 = sum(is.na(EDG_1))/n(),
-#           pct0.ELG.1 = sum(is.na(ELG_1))/n(),
-#           pct0.EW.1 = sum(is.na(EW_1))/n()
-#           )
+## Likelihood of winning based on observed averages
+win.prob.advantaged <- 1 - ((37)/(37+38))^2
+win.prob.advantaged
 ```
 
 
@@ -1489,7 +1740,6 @@ linearHypothesis(model_four, c("Symm_1_3 + Symm_3_1 = 0"))
 # 
 # summary(model_four, cluster = "Session")
 stargazer(model_four, title = "Model 4 Regression Results", label = "Tab:regression_4", single.row = T)
-
 ```
 
 
@@ -1520,7 +1770,7 @@ The percentage of times the advantaged player actually won on gerrymandered maps
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 pct.actually.win <- df %>%
-  filter(Period <= 24 & Period >= 20) %>%
+  filter(Period <= 24 & Period >= 15) %>%
   dplyr::select(Session, Period, Player, Win1, Win5) %>%
   gather(Map, Result, Win1:Win5) %>%
   mutate(advantage = ifelse((Player == "A" & Map == "Win5")|(Player == "B" & Map == "Win1"),"y","n"))
@@ -1535,6 +1785,87 @@ adv.b.win.pct <- pct.actually.win %>%
 
 pct.win <- rbind(adv.a.win.pct, adv.b.win.pct)
 
-sum(pct.win$adv.win)/nrow(pct.win)
+# sum(pct.win$adv.win)/nrow(pct.win)
 ```
+
+
+For Appendix:
+
+Difference between Stage 1 and Stage 2
+
+```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+stage_1to2_regression_data <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period >= 15 & Period <= 27) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+stage_1to2_regression_data <- stage_1to2_regression_data %>% mutate(subject.id = as.factor(Session*8-(8-Subject)),
+                                    Player_B = ifelse(Player== "B", 1, 0),
+         Gerry_B = ifelse(Map == "TE_1", 1, 0),
+         Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+         Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+         Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+         Gerry_A = ifelse(Map == "TE_5", 1, 0),
+         Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+         Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+##########
+#map_impact_on_stage_1_no_learning <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data = stage_1_regression_data)
+
+#map_impact_on_stage_1_with_learning <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data = stage_1_regression_data_with_learnng)
+########
+
+# Look at subject Fixed Effects and standard errors clustered at session level
+########
+map_impact_on_stage_1to2_no_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, data = stage_1to2_regression_data)
+summary(map_impact_on_stage_1to2_no_learning_FE)
+
+stage_1to2_regression_data_with_learning <- stage_1to2_regression_data %>% filter(Period >= 20)
+map_impact_on_stage_1to2_with_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, data = stage_1to2_regression_data_with_learning)
+summary(map_impact_on_stage_1to2_with_learning_FE)
+
+##########
+#summary(map_impact_on_stage_1_no_learning)
+#summary(map_impact_on_stage_1_with_learning)
+#summary(map_impact_on_stage_1_no_learning_FE)
+#summary(map_impact_on_stage_1_with_learning_FE)
+
+#stargazer(map_impact_on_stage_1_no_learning, map_impact_on_stage_1_with_learning, title = "Map Impact on Stage 1 Bidding", column.labels = c("w/out learning", "w/ learning"), label = "Tab:stage_1_with_and_without_learning", single.row = T)
+
+stargazer(map_impact_on_stage_1to2_no_learning_FE,
+          map_impact_on_stage_1to2_with_learning_FE,
+          title = "Map Impact with Stage 2 Indicator (FE and Clustereed SE)",
+          column.labels = c("w/out learning", "w/ learning"),
+          label = "Tab:stage_1to2_with_and_without_learning_FE_CSE",
+          omit = "subject.id", single.row = T)
+
+# Must fill in clustered SE manually; can't figure out how to do this in Stargazer
+map_impact_on_stage_1to2_no_learning_FE_cluster <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data)
+summary(map_impact_on_stage_1to2_no_learning_FE_cluster)
+#summary(reg,cluster = c("class_id"))
+
+map_impact_on_stage_1to2_with_learning_FE_cluster <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data_with_learning)
+summary(map_impact_on_stage_1to2_with_learning_FE_cluster)
+
+# Tests with NO LEARNING
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Adv = Disadv"))
+#linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = Symm_3_1"))
+
+# Tests WITH LEARNING
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Adv = Disadv"))
+#linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = Symm_3_1"))
+```
+
+## 01/07/2022
+
+The appendix needs to have two things.  1) It should look at total expenditure differences by treatment in Stage 1 and Stage 2.  One thing to do would be to rerun the main regressions adding a Stage 2 dummy and the interaction of the Stage 2 dummy and each map.  We could use periods 1-13 and periods 6-13 mimicking what we do in the main text to control for early learning.  2) It should have the CDF comparisons that roles did not matter.  That is, player A in Sym11 White looks like Player B there, and so on for all 9 sym districts.  For the gerrymandered maps, the comparison is the advantaged in Map 1 vs the disadvantaged in Map 5 per district.  Then compare disadvantaged.  So we end up with 15 pairs of CDFs.  These should report the K-S tests that the distributions are the same and show the theoretical prediction as a vertical line.
+
 
