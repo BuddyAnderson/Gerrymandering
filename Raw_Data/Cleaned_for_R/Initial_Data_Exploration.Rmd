@@ -237,11 +237,12 @@ stage_2 <- df %>% subset(Period > 24 & Period < 28) %>%
 
 library(raster)
 mode_df <- stage_2 %>% group_by(subject.id, Player) %>% 
-  summarise(mode.map = ifelse(length(unique(Map_Selection)) == 3, Map_Selection[3],modal(Map_Selection, ties = 'random')),
+  summarise(
+            mode.map = ifelse(length(unique(Map_Selection)) == 3, Map_Selection[3],modal(Map_Selection, ties = 'random')),
             selection.tie = ifelse(length(unique(Map_Selection)) == 3,1,0))
 
 mode_df.v1 <- mode_df %>%
-  mutate(renamed.mode.map = ifelse((mode.map==1 & Player == "B")|(mode.map==5 & Player == "A"), "Advantaged",
+  mutate(renamed.mode.map = ifelse((mode.map == 1 & Player == "B")|(mode.map==5 & Player == "A"), "Advantaged",
                                    ifelse(mode.map==2, "Symm_1_1",
                                           ifelse(mode.map==3, "Symm_1_3",
                                                  ifelse(mode.map==4,"Symm_3_1", "Disadvantaged")))))
@@ -340,9 +341,10 @@ Now we are addressing:
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 df_clean <- df_clean %>% mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)))
-df_all_cdf <- df_clean %>% dplyr::select(Period, subject.id, Player, District, Map, Effort)
+df_all_cdf <- df_clean %>% dplyr::select(Session, Period, subject.id, Player, District, Map, Effort) %>%
+  filter(!grepl("p", District))
 
-only.4 <- df_all_cdf %>% filter(Map == 4, District == c("EDG","ELG","EW")) # %>% group_by(subject.id, District, Effort)
+only.4 <- df_all_cdf %>% filter(Map == 4) # %>% group_by(subject.id, District, Effort)
 
 ggplot(only.4, aes(x = as.numeric(Effort), size = "1")) + 
   stat_ecdf(aes(colour=District)) +
@@ -354,15 +356,311 @@ ggplot(only.4, aes(x = as.numeric(Effort), size = "1")) +
 
 3), 4), & 5) Separately I would like to overlay player A and B’s CDFs for districts 1-3 in the map where they bid on all districts since there’s no reason for these to differ. 
 
-```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-symm.3.1.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Map == 4, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort), size = "1")) +
+To do this, recall the map structures. The Dark Gray district of every map for Player A is symmetric to the Light Gray district of the same map for Player B. That is, the Dark Gray district in $Sym_{1,1}$ for Player A is symmetric to the Light Gray district in $Sym_{1,1}$ for Player B. With that in mind, consider the following CDFs where each compares the symmetric districts of Players A and B.
+
+[DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
+
+```{r ks_tests_all, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+library("stats")
+# To compare DG for A and LG for B we need to rename the districts to easily facet wrap them:
+df_all_cdf <- df_all_cdf %>%
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
+          Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+
+df_all_cdf <- df_all_cdf %>%
+  mutate(Adv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "B")|(Map == 5 & District == "ELG" & Player == "A"), "Two Partisan For",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "B")|(Map == 5 & District == "EDG" & Player == "A"), "Three Partisan Against",
+                                            ifelse((Map == 1 & District == "EW" & Player == "B")|(Map == 5 & District == "EW" & Player == "A"),"One Partisan For", "Error"))),
+         Disadv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "A")|(Map == 5 & District == "ELG" & Player == "B"), "Two Partisan Against",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "A")|(Map == 5 & District == "EDG" & Player == "B"), "Three Partisan For",
+                                            ifelse((Map == 1 & District == "EW" & Player == "A")|(Map == 5 & District == "EW" & Player == "B"),"One Partisan Against", "Error"))))
+
+
+# Advantaged "One Partisan For"
+ADV.A.one.partisan.for <- subset(df_all_cdf, Advantage == "Adv" & Player == "A" & Adv.District.Names == "One Partisan For")[,"Effort"]
+ADV.B.one.partisan.for <- subset(df_all_cdf, Advantage == "Adv" & Player == "B" & Adv.District.Names == "One Partisan For")[,"Effort"]
+ADV.one.partisan.for <- ks.test(as.numeric(unlist(ADV.A.one.partisan.for)),as.numeric(unlist(ADV.B.one.partisan.for)))
+ADV.one.partisan.for_result <- ifelse(ADV.one.partisan.for[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(ADV.one.partisan.for_result)
+
+# Advantaged "Two Partisan For"
+ADV.A.two.partisan.for <- subset(df_all_cdf, Advantage == "Adv" & Player == "A" & Adv.District.Names == "Two Partisan For")[,"Effort"]
+ADV.B.two.partisan.for <- subset(df_all_cdf, Advantage == "Adv" & Player == "B" & Adv.District.Names == "Two Partisan For")[,"Effort"]
+ADV.two.partisan.for <- ks.test(as.numeric(unlist(ADV.A.two.partisan.for)),as.numeric(unlist(ADV.B.two.partisan.for)))
+ADV.two.partisan.for_result <- ifelse(ADV.two.partisan.for[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(ADV.two.partisan.for_result)
+
+# Advantaged "Three Partisan Against"
+ADV.A.three.partisan.against <- subset(df_all_cdf, Advantage == "Adv" & Player == "A" & Adv.District.Names == "Three Partisan Against")[,"Effort"]
+ADV.B.three.partisan.against <- subset(df_all_cdf, Advantage == "Adv" & Player == "B" & Adv.District.Names == "Three Partisan Against")[,"Effort"]
+ADV.three.partisan.against <- ks.test(as.numeric(unlist(ADV.A.three.partisan.against)),as.numeric(unlist(ADV.B.three.partisan.against)))
+ADV.three.partisan.against_result <- ifelse(ADV.three.partisan.against[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(ADV.three.partisan.against_result)
+
+# Disadvantaged "One Partisan Against"
+Dis.ADV.A.one.partisan.against <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "A" & Disadv.District.Names == "One Partisan Against")[,"Effort"]
+Dis.ADV.B.one.partisan.against <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "B" & Disadv.District.Names == "One Partisan Against")[,"Effort"]
+Dis.ADV.one.partisan.against <- ks.test(as.numeric(unlist(Dis.ADV.A.one.partisan.against)),as.numeric(unlist(Dis.ADV.B.one.partisan.against)))
+Dis.ADV.one.partisan.against_result <- ifelse(Dis.ADV.one.partisan.against[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(Dis.ADV.one.partisan.against_result)
+
+# Disadvantaged "Two Partisan Against"
+Dis.ADV.A.two.partisan.against <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "A" & Disadv.District.Names == "Two Partisan Against")[,"Effort"]
+Dis.ADV.B.two.partisan.against <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "B" & Disadv.District.Names == "Two Partisan Against")[,"Effort"]
+Dis.ADV.two.partisan.against <- ks.test(as.numeric(unlist(Dis.ADV.A.two.partisan.against)),as.numeric(unlist(Dis.ADV.B.two.partisan.against)))
+Dis.ADV.two.partisan.against_result <- ifelse(Dis.ADV.two.partisan.against[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(Dis.ADV.two.partisan.against_result)
+
+# Disadvantaged "Three Partisan For"
+Dis.ADV.A.three.partisan.for <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "A" & Disadv.District.Names == "Three Partisan For")[,"Effort"]
+Dis.ADV.B.three.partisan.for <- subset(df_all_cdf, Advantage == "Dis.adv" & Player == "B" & Disadv.District.Names == "Three Partisan For")[,"Effort"]
+Dis.ADV.three.partisan.for <- ks.test(as.numeric(unlist(Dis.ADV.A.three.partisan.for)),as.numeric(unlist(Dis.ADV.B.three.partisan.for)))
+Dis.ADV.three.partisan.for_result <- ifelse(Dis.ADV.three.partisan.for[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+#print(Dis.ADV.three.partisan.for_result)
+
+ADV <- c(ADV.one.partisan.for[["p.value"]], ADV.two.partisan.for[["p.value"]], ADV.three.partisan.against[["p.value"]])
+DisAdv <- c(Dis.ADV.one.partisan.against[["p.value"]], Dis.ADV.two.partisan.against[["p.value"]], Dis.ADV.three.partisan.for[["p.value"]])
+Comparison <- c("One Partisan Voters", "Two Partisan Voters", "Three Partisan Voters")
+adv.disadv.ks.tests <- data.frame(Comparison, ADV, DisAdv)
+adv.disadv.ks.tests$ADV <- as.numeric(round(adv.disadv.ks.tests$ADV, 3))
+adv.disadv.ks.tests$DisAdv <- as.numeric(round(adv.disadv.ks.tests$DisAdv, 3))
+
+
+# Symmetric 1,1
+EW2A <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "A")[,"Effort"]
+EW2B <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "B")[,"Effort"]
+EDG2A <- subset(df_all_cdf, Map == 2 & District == "EDG" & Player == "A")[,"Effort"]
+EDG2B <- subset(df_all_cdf, Map == 2 & District == "EDG" & Player == "B")[,"Effort"]
+ELG2A <- subset(df_all_cdf, Map == 2 & District == "ELG" & Player == "A")[,"Effort"]
+ELG2B <- subset(df_all_cdf, Map == 2 & District == "ELG" & Player == "B")[,"Effort"]
+
+EW2 <- ks.test(as.numeric(unlist(EW2A)),as.numeric(unlist(EW2B)))
+DarkGrayA_to_LightGrayB_Sym_1_1 <- ks.test(as.numeric(unlist(EDG2A)),as.numeric(unlist(ELG2B)))
+LightGrayA_to_DarkGrayB_Sym_1_1 <- ks.test(as.numeric(unlist(ELG2A)),as.numeric(unlist(EDG2B)))
+
+EW2_result <- ifelse(EW2[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+DarkGrayA_to_LightGrayB_Sym_1_1_result <- ifelse(DarkGrayA_to_LightGrayB_Sym_1_1[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+LightGrayA_to_DarkGrayB_Sym_1_1_result <- ifelse(LightGrayA_to_DarkGrayB_Sym_1_1[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+
+# Symmetric 1,3
+EW3A <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "A")[,"Effort"]
+EW3B <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "B")[,"Effort"]
+EDG3A <- subset(df_all_cdf, Map == 3 & District == "EDG" & Player == "A")[,"Effort"]
+EDG3B <- subset(df_all_cdf, Map == 3 & District == "EDG" & Player == "B")[,"Effort"]
+ELG3A <- subset(df_all_cdf, Map == 3 & District == "ELG" & Player == "A")[,"Effort"]
+ELG3B <- subset(df_all_cdf, Map == 3 & District == "ELG" & Player == "B")[,"Effort"]
+
+EW3 <- ks.test(as.numeric(unlist(EW3A)),as.numeric(unlist(EW3B)))
+DarkGrayA_to_LightGrayB_Sym_1_3 <- ks.test(as.numeric(unlist(EDG3A)),as.numeric(unlist(ELG3B)))
+LightGrayA_to_DarkGrayB_Sym_1_3 <- ks.test(as.numeric(unlist(ELG3A)),as.numeric(unlist(EDG3B)))
+
+EW3_result <- ifelse(EW3[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+DarkGrayA_to_LightGrayB_Sym_1_3_result <- ifelse(DarkGrayA_to_LightGrayB_Sym_1_3[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+LightGrayA_to_DarkGrayB_Sym_1_3_result <- ifelse(LightGrayA_to_DarkGrayB_Sym_1_3[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+
+# Map 4 Dark Grey
+EW4A <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "A")[,"Effort"]
+EW4B <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "B")[,"Effort"]
+EDG4A <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "A")[,"Effort"]
+EDG4B <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "B")[,"Effort"]
+ELG4A <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "A")[,"Effort"]
+ELG4B <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "B")[,"Effort"]
+
+EW4 <- ks.test(as.numeric(unlist(EW4A)),as.numeric(unlist(EW4B)))
+DarkGrayA_to_LightGrayB_Sym_3_1 <- ks.test(as.numeric(unlist(EDG4A)),as.numeric(unlist(ELG4B)))
+LightGrayA_to_DarkGrayB_Sym_3_1 <- ks.test(as.numeric(unlist(ELG4A)),as.numeric(unlist(EDG4B)))
+
+EW4_result <- ifelse(EW4[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+DarkGrayA_to_LightGrayB_Sym_3_1_result <- ifelse(DarkGrayA_to_LightGrayB_Sym_3_1[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+LightGrayA_to_DarkGrayB_Sym_3_1_result <- ifelse(LightGrayA_to_DarkGrayB_Sym_3_1[["p.value"]] < .05, "Reject the null", "Fail to reject the null")
+
+# p.value <- c(EW2[["p.value"]],ELG2[["p.value"]], EDG2[["p.value"]],
+#        EW3[["p.value"]],ELG3[["p.value"]], EDG3[["p.value"]],
+#        EW4[["p.value"]],ELG4[["p.value"]], EDG4[["p.value"]],
+#        Dis.ADV.one.partisan.against[["p.value"]], Dis.ADV.two.partisan.against[["p.value"]], Dis.ADV.three.partisan.for[["p.value"]],
+#        ADV.one.partisan.for[["p.value"]], ADV.two.partisan.for[["p.value"]], ADV.three.partisan.against[["p.value"]])
+# 
+# Action <- c(EW2_result,ELG2_result, EDG2_result,
+#        EW3_result,ELG3_result, EDG3_result,
+#        EW4_result,ELG4_result, EDG4_result,
+#        Dis.ADV.one.partisan.against_result, Dis.ADV.two.partisan.against_result, Dis.ADV.three.partisan.for_result,
+#        ADV.one.partisan.for_result, ADV.two.partisan.for_result, ADV.three.partisan.against_result)
+# K.S.Test <- c("EW2_result","ELG2_result", "EDG2_result",
+#        "EW3_result","ELG3_result", "EDG3_result",
+#        "EW4_result","ELG4_result", "EDG4_result",
+#        "Dis.ADV.one.partisan.against_result", "Dis.ADV.two.partisan.against_result", "Dis.ADV.three.partisan.for_result",
+#        "ADV.one.partisan.for_result", "ADV.two.partisan.for_result", "ADV.three.partisan.against_result")
+# k.s.test.results <- data.frame(K.S.Test, p.value, Action)
+
+Sym.1.1 <- c(EW2[["p.value"]], DarkGrayA_to_LightGrayB_Sym_1_1[["p.value"]], LightGrayA_to_DarkGrayB_Sym_1_1[["p.value"]])
+Sym.1.3 <- c(EW3[["p.value"]], DarkGrayA_to_LightGrayB_Sym_1_3[["p.value"]], LightGrayA_to_DarkGrayB_Sym_1_3[["p.value"]])
+Sym.3.1 <- c(EW4[["p.value"]], DarkGrayA_to_LightGrayB_Sym_3_1[["p.value"]], LightGrayA_to_DarkGrayB_Sym_3_1[["p.value"]])
+Comparison <- c("A White to B White", "A Dark Gray to B Light Gray", "A Light Gray to B Dark Gray")
+sym.k.s.tests <- data.frame(Comparison, Sym.1.1, Sym.1.3, Sym.3.1)
+sym.k.s.tests$Sym.1.1 <- round(sym.k.s.tests$Sym.1.1, 3)
+sym.k.s.tests$Sym.1.1 <- as.numeric(sym.k.s.tests$Sym.1.1)
+sym.k.s.tests$Sym.1.3 <- round(sym.k.s.tests$Sym.1.3, 3)
+sym.k.s.tests$Sym.1.3 <- as.numeric(sym.k.s.tests$Sym.1.3)
+sym.k.s.tests$Sym.3.1 <- round(sym.k.s.tests$Sym.3.1, 3)
+sym.k.s.tests$Sym.3.1 <- as.numeric(sym.k.s.tests$Sym.3.1)
+```
+
+
+```{r cdf_234, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+# To compare DG for A and LG for B we need to rename the districts to easily facet wrap them:
+df_all_cdf <- df_all_cdf %>%
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
+          Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+
+dummy2 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(0, 0, 20))
+symm.1.1.cdf.all <- ggplot(df_all_cdf %>% 
+         filter(Map == 2, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
-  geom_vline(xintercept = 10, linetype = "dashed") + xlim(0,80)+
-  facet_wrap(~District)+
-  #ggtitle("Symm_3_1 by District") +
+  scale_color_manual(values = c("Gray", "Black")) +
+  facet_wrap(~District.compare)+
+  geom_vline(data = dummy2, aes(xintercept = Z), linetype = "dashed") +
+  xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
+  ggtitle(parse(text = TeX('$Sym_{1,1}$ by District'))) +
   guides(size = F)
+
+label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,2]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,2]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,2]))
+data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
+                        label,
+                        x = c(60, 60, 60),
+                        y = c(0.25, 0.25, 0.25),
+                        stringsAsFactors = FALSE)
+symm.1.1.cdf.all <- symm.1.1.cdf.all+                                                       # Add individual text to plot
+  geom_text(data = data_text, mapping = aes(x = x,
+                          y = y,
+                          label = label), parse = TRUE)
+
+dummy3 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(0, 0, 30))
+symm.1.3.cdf.all <- ggplot(df_all_cdf %>% 
+         filter(Map == 3, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+  stat_ecdf(aes(colour=Player)) +
+  scale_color_manual(values = c("Gray", "Black")) +
+  facet_wrap(~District.compare)+
+  geom_vline(data = dummy3, aes(xintercept = Z), linetype = "dashed") +
+  xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
+  ggtitle(parse(text = TeX('$Sym_{1,3}$ by District'))) +
+  guides(size = F)
+
+label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,3]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,3]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,3]))
+data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
+                        label,
+                        x = c(60, 60, 60),
+                        y = c(0.25, 0.25, 0.25),
+                        stringsAsFactors = FALSE)
+symm.1.3.cdf.all <- symm.1.3.cdf.all+                                                       # Add individual text to plot
+  geom_text(data = data_text, mapping = aes(x = x,
+                          y = y,
+                          label = label), parse = TRUE)
+
+dummy4 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(10, 10, 10))
+symm.3.1.cdf.all <- ggplot(df_all_cdf %>% 
+         filter(Map == 4, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+  stat_ecdf(aes(colour=Player)) +
+  scale_color_manual(values = c("Gray", "Black")) +
+  facet_wrap(~District.compare)+
+  geom_vline(data = dummy4, aes(xintercept = Z), linetype = "dashed") +
+  xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
+  ggtitle(parse(text = TeX('$Sym_{3,1}$ by District'))) +
+  guides(size = F)
+
+label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,4]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,4]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,4]))
+data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
+                        label,
+                        x = c(60, 60, 60),
+                        y = c(0.25, 0.25, 0.25),
+                        stringsAsFactors = FALSE)
+symm.3.1.cdf.all <- symm.3.1.cdf.all+                                                       # Add individual text to plot
+  geom_text(data = data_text, mapping = aes(x = x,
+                          y = y,
+                          label = label), parse = TRUE)
+
+
+# For Advantaged, compare Map 1, Player B white to Map 5, Player A white; Map 1, Player B DG to Map 5, Player A LG; Map 1, Player B LG to Map 5, Player A DG
+dummy.adv <- data.frame(Adv.District.Names = c("Two Partisan For","Three Partisan Against","One Partisan For"), Z = c(0, 0, 20))
+gerry_adv.cdf.all <- ggplot(df_all_cdf %>% 
+         filter(Advantage == "Adv", District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+  stat_ecdf(aes(colour=Player)) +
+  scale_color_manual(values = c("Gray", "Black")) +
+  facet_wrap(~Adv.District.Names)+
+  geom_vline(data = dummy.adv, aes(xintercept = Z), linetype = "dashed") +
+  xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
+  ggtitle(parse(text = TeX('$Advantaged$'))) +
+  guides(size = F)
+
+label = c(sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[1,2]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[2,2]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[3,2]))
+data_text <- data.frame(Adv.District.Names = c("One Partisan For","Two Partisan For","Three Partisan Against"),
+                        label,
+                        x = c(60, 60, 60),
+                        y = c(0.25, 0.25, 0.25),
+                        stringsAsFactors = FALSE)
+
+gerry_adv.cdf.all <- gerry_adv.cdf.all+                                                       # Add individual text to plot
+  geom_text(data = data_text, mapping = aes(x = x,
+                          y = y,
+                          label = label), parse = TRUE)
+
+dummy.disadv <- data.frame(Disadv.District.Names = c("Two Partisan Against","Three Partisan For","One Partisan Against"), Z = c(0, 0, 20))
+gerry_disadv.cdf.all <- ggplot(df_all_cdf %>% 
+         filter(Advantage == "Dis.adv", District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+  stat_ecdf(aes(colour=Player)) +
+  scale_color_manual(values = c("Gray", "Black")) +
+  facet_wrap(~Disadv.District.Names)+
+  geom_vline(data = dummy.disadv, aes(xintercept = Z), linetype = "dashed") +
+  xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
+  ggtitle(parse(text = TeX('$Disadvantaged$'))) +
+  guides(size = F)
+label = c(sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[1,3]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[2,3]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[3,3]))
+data_text <- data.frame(Disadv.District.Names = c("One Partisan Against","Two Partisan Against","Three Partisan For"),
+                        label,
+                        x = c(60, 60, 60),
+                        y = c(0.25, 0.25, 0.25),
+                        stringsAsFactors = FALSE)
+gerry_disadv.cdf.all <- gerry_disadv.cdf.all+                                                       # Add individual text to plot
+  geom_text(data = data_text, mapping = aes(x = x,
+                          y = y,
+                          label = label), parse = TRUE)
+
+#sym11_role_behavior
+# use 900 width, 400 height
+symm.1.1.cdf.all
+symm.1.3.cdf.all
 symm.3.1.cdf.all
+gerry_adv.cdf.all
+gerry_disadv.cdf.all
+```
+```{r Regression_checking_role, warning=F, message=F, echo=F, fig.width=10, fig.height=5, eval=F}
+# Regression of a constant, a dummy for the B role, subject fixed effects and clustered standard errors using data that generated cdfs above
+df_all_cdf$subject.id <- as.factor(df_all_cdf$subject.id)
+player.role.regression.data <- df_all_cdf %>% 
+  filter(District == c("EDG", "ELG", "EW")) %>%
+  mutate(PlayerB_Dummy = ifelse(Player == "A", 0, 1))
+
+# The first and third regressions yield similar results, but the SE for the second regression is vastly different with much higher SEs
+# This is something I do not understand and would like to ask someone about
+player.role.check.with.FE.CSE <- lm.cluster(Effort ~ PlayerB_Dummy + subject.id, cluster = "Session", data = player.role.regression.data)
+#summary(player.role.check.with.FE.CSE)
+
+temp <- lm(Effort ~ PlayerB_Dummy + subject.id, data = player.role.regression.data)
+# summary(temp)
+temp.coef <- coeftest(temp, vcov=vcovHC(temp, cluster="Session"))
+temp.coef
+# Will have to change SE and p-value to reflect CSE
+stargazer(temp,
+          title = "Player Role Impact with Fixed Effects and Clustered Standard Errors",
+          label = "Tab:player_role_impact_FE_CSE",
+          omit = "subject.id", single.row = T)
+
+library(estimatr)
+temp2 <- lm_robust(Effort ~ PlayerB_Dummy + subject.id, clusters = Session, data = player.role.regression.data)
+#summary(temp2)
 ```
 
 \newpage
@@ -624,59 +922,6 @@ adj.spread.4 <- adjusted_map_four_bidding %>% filter(districts.bid == c("Two","T
 adj.spread.4
 ```
 
-[DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
-
-```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-library("stats")
-
-# Map 4 Dark Grey
-EDG4A <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "A")[,"Effort"]
-EDG4B <- subset(df_all_cdf, Map == 4 & District == "EDG" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(EDG4A)),as.numeric(unlist(EDG4B)))
-
-# Map 4 Light Grey
-ELG4A <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "A")[,"Effort"]
-ELG4B <- subset(df_all_cdf, Map == 4 & District == "ELG" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(ELG4A)),as.numeric(unlist(ELG4B)))
-
-# Map 4 White
-EW4A <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "A")[,"Effort"]
-EW4B <- subset(df_all_cdf, Map == 4 & District == "EW" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(EW4A)),as.numeric(unlist(EW4B)))
-
-# Map 2 White
-EW2A <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "A")[,"Effort"]
-EW2B <- subset(df_all_cdf, Map == 2 & District == "EW" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(EW2A)),as.numeric(unlist(EW2B)))
-
-# Map 3 White
-EW3A <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "A")[,"Effort"]
-EW3B <- subset(df_all_cdf, Map == 3 & District == "EW" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(EW3A)),as.numeric(unlist(EW3B)))
-
-# Advantaged
-ADV.A <- subset(dissag.df.overlay, Advantage == "Adv" & Player == "A")[,"Effort"]
-ADV.B <- subset(dissag.df.overlay, Advantage == "Adv" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(ADV.A)),as.numeric(unlist(ADV.B)))
-
-# Disadvantaged
-Dis.ADV.A <- subset(dissag.df.overlay, Advantage == "Dis.adv" & Player == "A")[,"Effort"]
-Dis.ADV.B <- subset(dissag.df.overlay, Advantage == "Dis.adv" & Player == "B")[,"Effort"]
-
-ks.test(as.numeric(unlist(Dis.ADV.A)),as.numeric(unlist(Dis.ADV.B)))
-
-# Adv vs Dis.adv
-ADV.All <- subset(dissag.df.overlay, Advantage == "Adv")[,"Effort"]
-Dis.ADV.All <- subset(dissag.df.overlay, Advantage == "Dis.adv")[,"Effort"]
-
-ks.test(as.numeric(unlist(ADV.All)),as.numeric(unlist(Dis.ADV.All)))
-```
 
 
 [DONE]- Also, since it seems that things are symmetric, it would be good to make a single graph that has the cdfs of total pair level investment by map (here a pair in a period is an observation). That way we can see if more is spent on some maps than others.
@@ -1818,6 +2063,7 @@ stage_1to2_regression_data <- stage_1to2_regression_data %>% mutate(subject.id =
 # Look at subject Fixed Effects and standard errors clustered at session level
 ########
 map_impact_on_stage_1to2_no_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, data = stage_1to2_regression_data)
+
 summary(map_impact_on_stage_1to2_no_learning_FE)
 
 stage_1to2_regression_data_with_learning <- stage_1to2_regression_data %>% filter(Period >= 20)
@@ -1855,6 +2101,12 @@ linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = 10"))
 linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_3_1 = 10"))
 linearHypothesis(map_impact_on_stage_1_no_learning_FE, c("Symm_1_3 = Symm_3_1"))
 
+# Simultaneous testing without learning
+linearHypothesis(map_impact_on_stage_1to2_no_learning_FE, c("Adv:Stage_2_indicator = 0",
+                                                            "Disadv:Stage_2_indicator = 0",
+                                                            "Symm_1_3:Stage_2_indicator = 0",
+                                                            "Symm_3_1:Stage_2_indicator = 0"))
+
 # Tests WITH LEARNING
 linearHypothesis(map_impact_on_stage_1_with_learning, c("Adv = Disadv"))
 #linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 0"))
@@ -1862,6 +2114,12 @@ linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = 10"))
 #linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 0"))
 linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_3_1 = 10"))
 linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = Symm_3_1"))
+
+# Simultaneous testing with learning
+linearHypothesis(map_impact_on_stage_1to2_with_learning_FE, c("Adv:Stage_2_indicator = 0",
+                                                            "Disadv:Stage_2_indicator = 0",
+                                                            "Symm_1_3:Stage_2_indicator = 0",
+                                                            "Symm_3_1:Stage_2_indicator = 0"))
 ```
 
 ## 01/07/2022
