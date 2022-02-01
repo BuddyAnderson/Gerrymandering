@@ -43,6 +43,8 @@ library(plm)
 library(stargazer)
 library(magrittr)
 library(texreg)
+library(xtable)
+library(tibble)
 
 # read in all data files for sessions 1 through 8
 for(i in 1:8) {
@@ -71,7 +73,7 @@ long_df <- df %>% dplyr::select(Session, Period, Subject, Player, Partner, LType
 # Orderly data with district, Map, and effort amount for each subject each period in each session
 
 # No need to use long_df_map because already renamed them manually above
-df_clean <- long_df %>% separate(District, c("District", "Map"))
+df_clean <- long_df %>% separate(District, c("District", "Map")) %>% filter(!grepl("p", District))
 
 # get some interesting tables
 avg.bid.map.district <- df_clean %>% group_by(Player, Map, District) %>% summarise(avg.Effort = mean(as.numeric(Effort)))
@@ -370,9 +372,11 @@ To do this, recall the map structures. The Dark Gray district of every map for P
 
 [DONE]- As a first pass, we should run a K-S tests to see if the various pairs of distributions you overlaid are the same.
 
-```{r ks_tests_all, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+```{r ks_tests_all_stage_1, echo=F, fig.height=5, fig.width=10, message=FALSE, warning=FALSE}
 # To compare DG for A and LG for B we need to rename the districts to easily facet wrap them:
+## STAGE 1 ONLY because that's how we compared district level expenditures
 df_all_cdf <- df_all_cdf %>%
+  filter(Period >= 15, Period <= 24) %>%
   mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
                                    ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
           Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
@@ -517,26 +521,32 @@ sym.k.s.tests$Sym.3.1 <- as.numeric(sym.k.s.tests$Sym.3.1)
 ```
 
 
-```{r cdf_234, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+```{r cdf_checking_role, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 # To compare DG for A and LG for B we need to rename the districts to easily facet wrap them:
 df_all_cdf <- df_all_cdf %>%
+  filter(Period >= 15, Period <= 24) %>%
   mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
                                    ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
           Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
-                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Renamed.Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Gerry Advantaged",
+                      ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Gerry Disadvantaged",
+                             ifelse(Map == 2, "Symm_1_1",
+                                    ifelse(Map == 3, "Symm_1_3", "Symm_3_1")))))
 
 dummy2 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(0, 0, 20))
+
 symm.1.1.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Map == 2, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+         filter(Map == 2), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
   scale_color_manual(values = c("Gray", "Black")) +
   facet_wrap(~District.compare)+
   geom_vline(data = dummy2, aes(xintercept = Z), linetype = "dashed") +
   xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
-  ggtitle(parse(text = TeX('$Sym_{1,1}$ by District'))) +
+  #ggtitle(parse(text = TeX('$Sym_{1,1}$ by District'))) +
   guides(size = F)
 
-label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,2]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,2]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,2]))
+label = c(sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[2,2]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[3,2]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[1,2]))
 data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
                         label,
                         x = c(60, 60, 60),
@@ -549,16 +559,16 @@ symm.1.1.cdf.all <- symm.1.1.cdf.all+                                           
 
 dummy3 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(0, 0, 30))
 symm.1.3.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Map == 3, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+         filter(Map == 3), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
   scale_color_manual(values = c("Gray", "Black")) +
   facet_wrap(~District.compare)+
   geom_vline(data = dummy3, aes(xintercept = Z), linetype = "dashed") +
   xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
-  ggtitle(parse(text = TeX('$Sym_{1,3}$ by District'))) +
+  #ggtitle(parse(text = TeX('$Sym_{1,3}$ by District'))) +
   guides(size = F)
 
-label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,3]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,3]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,3]))
+label = c(sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[2,3]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[3,3]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[1,3]))
 data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
                         label,
                         x = c(60, 60, 60),
@@ -571,16 +581,16 @@ symm.1.3.cdf.all <- symm.1.3.cdf.all+                                           
 
 dummy4 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(10, 10, 10))
 symm.3.1.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Map == 4, District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+         filter(Map == 4), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
   scale_color_manual(values = c("Gray", "Black")) +
   facet_wrap(~District.compare)+
   geom_vline(data = dummy4, aes(xintercept = Z), linetype = "dashed") +
   xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
-  ggtitle(parse(text = TeX('$Sym_{3,1}$ by District'))) +
+  #ggtitle(parse(text = TeX('$Sym_{3,1}$ by District'))) +
   guides(size = F)
 
-label = c(sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[2,4]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[3,4]), sprintf("italic(%s) == %.4f", "p-value", sym.k.s.tests[1,4]))
+label = c(sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[2,4]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[3,4]), sprintf("italic(%s) == %.4f", "KSpvalue", sym.k.s.tests[1,4]))
 data_text <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"),
                         label,
                         x = c(60, 60, 60),
@@ -595,16 +605,16 @@ symm.3.1.cdf.all <- symm.3.1.cdf.all+                                           
 # For Advantaged, compare Map 1, Player B white to Map 5, Player A white; Map 1, Player B DG to Map 5, Player A LG; Map 1, Player B LG to Map 5, Player A DG
 dummy.adv <- data.frame(Adv.District.Names = c("Two Partisan For","Three Partisan Against","One Partisan For"), Z = c(0, 0, 20))
 gerry_adv.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Advantage == "Adv", District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+         filter(Advantage == "Adv"), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
   scale_color_manual(values = c("Gray", "Black")) +
   facet_wrap(~Adv.District.Names)+
   geom_vline(data = dummy.adv, aes(xintercept = Z), linetype = "dashed") +
   xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
-  ggtitle(parse(text = TeX('$Advantaged$'))) +
+  #ggtitle(parse(text = TeX('$Advantaged$'))) +
   guides(size = F)
 
-label = c(sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[1,2]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[2,2]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[3,2]))
+label = c(sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[1,2]), sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[2,2]), sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[3,2]))
 data_text <- data.frame(Adv.District.Names = c("One Partisan For","Two Partisan For","Three Partisan Against"),
                         label,
                         x = c(60, 60, 60),
@@ -618,15 +628,15 @@ gerry_adv.cdf.all <- gerry_adv.cdf.all+                                         
 
 dummy.disadv <- data.frame(Disadv.District.Names = c("Two Partisan Against","Three Partisan For","One Partisan Against"), Z = c(0, 0, 20))
 gerry_disadv.cdf.all <- ggplot(df_all_cdf %>% 
-         filter(Advantage == "Dis.adv", District == c("EDG","ELG","EW")), aes(x = as.numeric(Effort))) +
+         filter(Advantage == "Dis.adv"), aes(x = as.numeric(Effort))) +
   stat_ecdf(aes(colour=Player)) +
   scale_color_manual(values = c("Gray", "Black")) +
   facet_wrap(~Disadv.District.Names)+
   geom_vline(data = dummy.disadv, aes(xintercept = Z), linetype = "dashed") +
   xlim(0,80) + xlab("Expenditure") + ylab("Cumulative Probability") +
-  ggtitle(parse(text = TeX('$Disadvantaged$'))) +
+  #ggtitle(parse(text = TeX('$Disadvantaged$'))) +
   guides(size = F)
-label = c(sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[1,3]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[2,3]), sprintf("italic(%s) == %.4f", "p-value", adv.disadv.ks.tests[3,3]))
+label = c(sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[1,3]), sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[2,3]), sprintf("italic(%s) == %.4f", "KSpvalue", adv.disadv.ks.tests[3,3]))
 data_text <- data.frame(Disadv.District.Names = c("One Partisan Against","Two Partisan Against","Three Partisan For"),
                         label,
                         x = c(60, 60, 60),
@@ -637,14 +647,64 @@ gerry_disadv.cdf.all <- gerry_disadv.cdf.all+                                   
                           y = y,
                           label = label), parse = TRUE)
 
-#sym11_role_behavior
-# use 900 width, 400 height
 symm.1.1.cdf.all
 symm.1.3.cdf.all
 symm.3.1.cdf.all
 gerry_adv.cdf.all
 gerry_disadv.cdf.all
+
+
+Map <- c("Symm_1_1", "Symm_1_3", "Symm_3_1", "Gerry Advantaged", "Gerry Disadvantaged")
+adv_coef_cdfs <- data.frame()
+disadv_coef_cdfs <- data.frame()
+fair_coef_cdfs <- data.frame()
+for(c in Map){
+  temp_df <- df_all_cdf %>% 
+    filter(Renamed.Map == c) %>%
+    mutate(Compare = ifelse(Renamed.Map == "Gerry Advantaged", Adv.District.Names,
+                            ifelse(Renamed.Map == "Gerry Disadvantaged", Disadv.District.Names,
+                  District.compare))) %>%
+    dplyr::select(Renamed.Map,
+           Compare,
+           Effort,
+           Player
+           )
+  for(i in unique(temp_df$Compare)){
+    temp_model <- lm(Effort ~ Player, temp_df %>% filter(Compare == i))
+    temp_summary <- summary(temp_model)
+    
+    temp_intercept <- temp_summary[["coefficients"]][1,1]
+    temp_intercept_pvalue <- temp_summary[["coefficients"]][1,4]
+    
+    temp_est <- temp_summary[["coefficients"]][2,1]
+    temp_pvalue <- temp_summary[["coefficients"]][2,4]
+    if(c == "Gerry Advantaged"){
+      adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+    }else if (c == "Gerry Disadvantaged"){
+      disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+    }else{
+      fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+    }
+  }
+}
+
+xtable(adv_coef_cdfs)
+xtable(disadv_coef_cdfs)
+xtable(fair_coef_cdfs)
+
 ```
+
+
 ```{r Regression_checking_role, warning=F, message=F, echo=F, fig.width=10, fig.height=5, eval=F}
 # Regression of a constant, a dummy for the B role, subject fixed effects and clustered standard errors using data that generated cdfs above
 df_all_cdf$subject.id <- as.factor(df_all_cdf$subject.id)
@@ -742,11 +802,15 @@ ggplot(dissag.df.overlay %>% filter(Advantage == "Dis.adv"), aes(x=as.numeric(Ef
 
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-adv.vs.disadv.cdf <- ggplot(dissag.df.overlay, aes(x=as.numeric(Effort))) +
+adv.vs.disadv.cdf <- dissag.df.overlay %>%
+  filter(Period <= 24) %>%
+  ggplot(aes(x=as.numeric(Effort))) +
   scale_color_manual(values = c("black","green"), labels = c("Advantaged", "Disadvantaged")) +
   stat_ecdf(aes(colour=Advantage)) +
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   guides(size = F)
+
+# use dimensions Width = and Height = 
 adv.vs.disadv.cdf + 
   theme(legend.title = element_blank()) +
   xlab("Expenditure in White District") +
@@ -847,7 +911,7 @@ ggplot(map_four_bidding, aes(x=Spread, fill = districts.bid, color = districts.b
 
 Separate graphs for bidding in two and separate for bidding in three (maybe under table with pct of Zero, One, Two, and Three bids in Symmetric_Map_3,1)
 
-```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+```{r scatter.plot.of.relative.district.level.expenditure.in.sym.3.1, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 spread.map.four <- map_four_bidding %>% filter(districts.bid == c("Two","Three")) %>%
   ggplot(aes(x=Spread, fill = districts.bid, color = districts.bid)) +
     stat_count(width = 0.5, alpha = 0.5, position="identity") + xlim(-2,80)+ 
@@ -1012,36 +1076,40 @@ session.level.ts.avgs %>%
 
 What about a time series plot with the average across all sessions?
 
-```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-time_series_avg_across_sessions <- df_clean %>% 
-  filter(((Map == 1 | Map == 5 | Map == 2 | Map == 3) & District == "EW")|(Map == 4)) %>% 
-  dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
-  mutate(Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
-                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
-         Choice = ifelse(Advantage == "Adv", "Gerrymander_Adv", 
-                         ifelse(Advantage == "Dis.adv", "Gerrymander_Dis", 
-                                ifelse(Map == 3, "Symm_1_3 w", 
-                                       ifelse(Map == 2, "Symm_1_1 w",
-                                              ifelse(Map == 4 & District == "EW", "Symm_3_1 w",
-                                                     ifelse(Map == 4 & District == "EDG", "Symm_3_1 dg", "Symm_3_1 lg")))))))
+```{r average.expenditure.by.district.in.stage.1, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+# The following big commented section is not right, but also not included in paper:
 
-# Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
-session.level.ts.avgs.across.sessions <- time_series_avg_across_sessions %>% 
-  filter(Period < 28, District == c("EW","EDG","ELG")) %>% 
-  group_by(Period, Choice) %>% 
-  summarise(avg.Effort = mean(as.numeric(Effort)))
+# time_series_avg_across_sessions <- df_clean %>% 
+#   filter(((Map == 1 | Map == 5 | Map == 2 | Map == 3) & District == "EW")|(Map == 4)) %>% 
+#   dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
+#   mutate(Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+#                             ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+#          Choice = ifelse(Advantage == "Adv", "Gerrymander_Adv", 
+#                          ifelse(Advantage == "Dis.adv", "Gerrymander_Dis", 
+#                                 ifelse(Map == 3, "Symm_1_3 w", 
+#                                        ifelse(Map == 2, "Symm_1_1 w",
+#                                               ifelse(Map == 4 & District == "EW", "Symm_3_1 w",
+#                                                      ifelse(Map == 4 & District == "EDG", "Symm_3_1 dg", "Symm_3_1 lg")))))))
+# 
+# # Get averages for advantages in map 1 or 5, disadvantaged in map 1 or 5, white in map 2 or 3, and all districts in map 4
+# session.level.ts.avgs.across.sessions <- time_series_avg_across_sessions %>% 
+#   filter(Period < 28, District == c("EW","EDG","ELG")) %>% 
+#   group_by(Period, Choice) %>% 
+#   summarise(avg.Effort = mean(as.numeric(Effort)))
+# 
+# session.level.ts.avgs.across.sessions$Period <- session.level.ts.avgs.across.sessions$Period - 14
+# 
+# 
+# ## These time series plots are only efforts of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
+# ts.plot.whole.study <- session.level.ts.avgs.across.sessions %>%
+#   filter(Period < 11) %>%
+#   ggplot(aes(x=Period, y=avg.Effort, color = Choice)) +
+#   geom_line() + xlim(1,10) + ylim(0,60) +
+#   scale_x_continuous(breaks=c(1:10)) +
+#   labs(color = "Map and/or District", y = "Average Bid")
+# ts.plot.whole.study
 
-session.level.ts.avgs.across.sessions$Period <- session.level.ts.avgs.across.sessions$Period - 14
 
-
-## These time series plots are only efforts of the competitive districts. We should also look at non competitive districts to determine if a learning effect is evident.
-ts.plot.whole.study <- session.level.ts.avgs.across.sessions %>%
-  filter(Period < 11) %>%
-  ggplot(aes(x=Period, y=avg.Effort, color = Choice)) +
-  geom_line() + xlim(1,10) + ylim(0,60) +
-  scale_x_continuous(breaks=c(1:10)) +
-  labs(color = "Map and/or District", y = "Average Bid")
-ts.plot.whole.study
 
 ts.each.map.each.dist <- df_clean %>% 
   dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
@@ -1059,7 +1127,7 @@ ts.each.map.each.dist <- ts.each.map.each.dist %>%
                            ifelse(District == "ELG", "Light Gray", 
                                   ifelse(District == "EW","White", "Wrong"))))
 
-for.plot.of.ts.each.map.and.district <- ts.each.map.each.dist %>% filter(District == c("White","Dark Gray", "Light Gray"), Period >= 15, Period <=24) %>% group_by(Period, Map, District) %>% summarise(avg.Effort = mean(Effort)) 
+for.plot.of.ts.each.map.and.district <- ts.each.map.each.dist %>%  filter(Period >= 15, Period <=24) %>% group_by(Period, Map, District) %>% summarise(avg.Effort = mean(Effort))
 
 # For Figure 3 please make the following cosmetic changes: a) make the lines thinner √, b) make white dot dot rather than dash dot √, c) make background white not gray , d) remove the labels from inside the figure and put labels on the panels, e) put just gerrymandered treatments on first row and sym treatments on second row with each row centered, f) Use treatment names as shown in Table 2.
 ts.from.01.09.2022 <- ggplot(for.plot.of.ts.each.map.and.district, aes(x=Period, y=avg.Effort, group = District, color = District)) +
@@ -1068,8 +1136,8 @@ ts.from.01.09.2022 <- ggplot(for.plot.of.ts.each.map.and.district, aes(x=Period,
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Effort") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="top", text = element_text(size = 12)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12)) +
   facet_wrap(~Map)
 
 ts.by.map.and.district.gerry.adv <- for.plot.of.ts.each.map.and.district %>%
@@ -1080,8 +1148,8 @@ ts.by.map.and.district.gerry.adv <- for.plot.of.ts.each.map.and.district %>%
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
 
 ts.by.map.and.district.gerry.disadv <- for.plot.of.ts.each.map.and.district %>%
   filter(Map == "Gerry Disadvantaged") %>%
@@ -1091,8 +1159,8 @@ ts.by.map.and.district.gerry.disadv <- for.plot.of.ts.each.map.and.district %>%
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="right", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="right", text = element_text(size = 12))
 
 ts.by.map.and.district.sym11 <- for.plot.of.ts.each.map.and.district %>%
   filter(Map == "Symm_1_1") %>%
@@ -1102,8 +1170,8 @@ ts.by.map.and.district.sym11 <- for.plot.of.ts.each.map.and.district %>%
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
 
 ts.by.map.and.district.sym13 <- for.plot.of.ts.each.map.and.district %>%
   filter(Map == "Symm_1_3") %>%
@@ -1113,8 +1181,8 @@ ts.by.map.and.district.sym13 <- for.plot.of.ts.each.map.and.district %>%
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="bottom", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
 
 ts.by.map.and.district.sym13.alternative <- for.plot.of.ts.each.map.and.district %>%
   filter(Map == "Symm_1_3") %>%
@@ -1124,8 +1192,8 @@ ts.by.map.and.district.sym13.alternative <- for.plot.of.ts.each.map.and.district
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
 
 ts.by.map.and.district.sym31 <- for.plot.of.ts.each.map.and.district %>%
   filter(Map == "Symm_3_1") %>%
@@ -1135,12 +1203,12 @@ ts.by.map.and.district.sym31 <- for.plot.of.ts.each.map.and.district %>%
   scale_color_manual(values=c('#333333','#999999', '#000000'))+
   xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
   scale_x_discrete(breaks=c(1:10)) +
-  theme_bw() +
-  theme(legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1),legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
 
 # saved with width 300 height 175
 ts.by.map.and.district.gerry.adv
-ts.by.map.and.district.gerry.disadv
+ts.by.map.and.district.gerry.disadv # only one with 300 and 210
 ts.by.map.and.district.sym11
 ts.by.map.and.district.sym13
 ts.by.map.and.district.sym13.alternative
@@ -1712,7 +1780,8 @@ stage_1_regression_data <- stage_1_regression_data %>% mutate(subject.id = as.fa
          Gerry_A = ifelse(Map == "TE_5", 1, 0),
          Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
          Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
-         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+         Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0) # this is currently useless (all zeros)
+         )
 
 stage_1_regression_data_with_learnng <- stage_1_regression_data %>% filter(Period >=20)
 ##########
@@ -1902,7 +1971,6 @@ Table with each of 5 maps' 3 districts and percent of bids == 0, average bid if 
 ## 1
 
 ```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
-
 ## NOTE: check the Period filter for correctness when analyzing
 stage_1.cond <- df %>% filter(Period <= 24 & Period >= 20) %>% dplyr::select(EDG_5:EW_1)
 stage_1.cond[stage_1.cond == 0] <- NA
@@ -1928,13 +1996,23 @@ pct.zero.dis.adv <- no_partner_stats %>%
             avg.positive.bid = mean(EffortWithNAs, na.rm = T),
             avg.bid          = mean(Effort))
 pct.zero.dis.adv
-pct.zero.dis.adv <- no_partner_stats %>%
+
+
+pct.zero.dis.adv.stage.1 <- no_partner_stats %>%
+  filter(Period >= 15, Period <= 24) %>%
+  group_by(District, Map, Fairness) %>%
+  summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
+            avg.positive.bid = mean(EffortWithNAs, na.rm = T),
+            avg.bid          = mean(Effort))
+pct.zero.dis.adv.stage.1
+
+pct.zero.dis.adv.w.learning <- no_partner_stats %>%
   filter(Period >= 20, Period <= 24) %>%
   group_by(District, Map, Fairness) %>%
   summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
             avg.positive.bid = mean(EffortWithNAs, na.rm = T),
             avg.bid          = mean(Effort))
-pct.zero.dis.adv
+pct.zero.dis.adv.w.learning
 
 
 pct.zero <- long_df %>% filter(Period <= 24 & Period >= 15) %>%
@@ -2088,11 +2166,11 @@ stargazer(map_impact_on_stage_1to2_no_learning_FE,
           omit = "subject.id", single.row = T)
 
 # Must fill in clustered SE manually; can't figure out how to do this in Stargazer
-map_impact_on_stage_1to2_no_learning_FE_cluster <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data)
+map_impact_on_stage_1to2_no_learning_FE_cluster <- lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data)
 summary(map_impact_on_stage_1to2_no_learning_FE_cluster)
 #summary(reg,cluster = c("class_id"))
 
-map_impact_on_stage_1to2_with_learning_FE_cluster <-lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data_with_learning)
+map_impact_on_stage_1to2_with_learning_FE_cluster <- lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data_with_learning)
 summary(map_impact_on_stage_1to2_with_learning_FE_cluster)
 
 # Tests with NO LEARNING
@@ -2119,6 +2197,17 @@ linearHypothesis(map_impact_on_stage_1_with_learning, c("Symm_1_3 = Symm_3_1"))
 
 # Simultaneous testing with learning
 linearHypothesis(map_impact_on_stage_1to2_with_learning_FE, c("Adv:Stage_2_indicator = 0",
+                                                            "Disadv:Stage_2_indicator = 0",
+                                                            "Symm_1_3:Stage_2_indicator = 0",
+                                                            "Symm_3_1:Stage_2_indicator = 0"))
+
+
+linearHypothesis(map_impact_on_stage_1to2_no_learning_FE_cluster, c("Adv:Stage_2_indicator = 0",
+                                                            "Disadv:Stage_2_indicator = 0",
+                                                            "Symm_1_3:Stage_2_indicator = 0",
+                                                            "Symm_3_1:Stage_2_indicator = 0"))
+
+linearHypothesis(map_impact_on_stage_1to2_with_learning_FE_cluster, c("Adv:Stage_2_indicator = 0",
                                                             "Disadv:Stage_2_indicator = 0",
                                                             "Symm_1_3:Stage_2_indicator = 0",
                                                             "Symm_3_1:Stage_2_indicator = 0"))
