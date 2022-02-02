@@ -45,6 +45,7 @@ library(magrittr)
 library(texreg)
 library(xtable)
 library(tibble)
+library(lme4)
 
 # read in all data files for sessions 1 through 8
 for(i in 1:8) {
@@ -529,10 +530,10 @@ df_all_cdf <- df_all_cdf %>%
                                    ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
           Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
                             ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
-         Renamed.Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Gerry Advantaged",
-                      ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Gerry Disadvantaged",
-                             ifelse(Map == 2, "Symm_1_1",
-                                    ifelse(Map == 3, "Symm_1_3", "Symm_3_1")))))
+         Renamed.Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Advantaged",
+                      ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Disadvantaged",
+                             ifelse(Map == 2, "Sym_1_1",
+                                    ifelse(Map == 3, "Sym_1_3", "Sym_3_1")))))
 
 dummy2 <- data.frame(District.compare = c("DG Player A to LG Player B","LG Player A to DG Player B","W for Both Players"), Z = c(0, 0, 20))
 
@@ -654,45 +655,101 @@ gerry_adv.cdf.all
 gerry_disadv.cdf.all
 
 
-Map <- c("Symm_1_1", "Symm_1_3", "Symm_3_1", "Gerry Advantaged", "Gerry Disadvantaged")
+Map <- c("Sym_1_1", "Sym_1_3", "Sym_3_1", "Advantaged", "Disadvantaged")
 adv_coef_cdfs <- data.frame()
 disadv_coef_cdfs <- data.frame()
 fair_coef_cdfs <- data.frame()
+
+adv_coef_cdfs.fixed.effects <- data.frame()
+disadv_coef_cdfs.fixed.effects <- data.frame()
+fair_coef_cdfs.fixed.effects <- data.frame()
+
+adv_coef_cdfs.random.effects <- data.frame()
+disadv_coef_cdfs.random.effects <- data.frame()
+fair_coef_cdfs.random.effects <- data.frame()
+
+
 for(c in Map){
   temp_df <- df_all_cdf %>% 
     filter(Renamed.Map == c) %>%
-    mutate(Compare = ifelse(Renamed.Map == "Gerry Advantaged", Adv.District.Names,
-                            ifelse(Renamed.Map == "Gerry Disadvantaged", Disadv.District.Names,
+    mutate(Compare = ifelse(Renamed.Map == "Advantaged", Adv.District.Names,
+                            ifelse(Renamed.Map == "Disadvantaged", Disadv.District.Names,
                   District.compare))) %>%
     dplyr::select(Renamed.Map,
            Compare,
            Effort,
-           Player
+           Player,
+           subject.id
            )
   for(i in unique(temp_df$Compare)){
     temp_model <- lm(Effort ~ Player, temp_df %>% filter(Compare == i))
     temp_summary <- summary(temp_model)
-    
     temp_intercept <- temp_summary[["coefficients"]][1,1]
     temp_intercept_pvalue <- temp_summary[["coefficients"]][1,4]
-    
     temp_est <- temp_summary[["coefficients"]][2,1]
     temp_pvalue <- temp_summary[["coefficients"]][2,4]
-    if(c == "Gerry Advantaged"){
+    
+    # # Fixed effects; no clustered standard error; probably better way to do this
+    # temp_model.FE <- lm(Effort ~ Player + subject.id, temp_df %>% filter(Compare == i))
+    # temp_summary.FE <- summary(temp_model.FE)
+    # temp_intercept.FE <- temp_summary.FE[["coefficients"]][1,1]
+    # temp_intercept_pvalue.FE <- temp_summary.FE[["coefficients"]][1,4]
+    # temp_est.FE <- temp_summary.FE[["coefficients"]][2,1]
+    # temp_pvalue.FE <- temp_summary.FE[["coefficients"]][2,4]
+    # 
+    # # Random effects; no clustered standard error; probably better way to do this
+    # temp_model.FE <- lm(Effort ~ Player + subject.id, temp_df %>% filter(Compare == i))
+    # temp_summary.FE <- summary(temp_model.FE)
+    # temp_intercept.FE <- temp_summary.FE[["coefficients"]][1,1]
+    # temp_intercept_pvalue.FE <- temp_summary.FE[["coefficients"]][1,4]
+    # temp_est.FE <- temp_summary.FE[["coefficients"]][2,1]
+    # temp_pvalue.FE <- temp_summary.FE[["coefficients"]][2,4]
+    
+    if(c == "Advantaged"){
       adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
       adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
       adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
       adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
-    }else if (c == "Gerry Disadvantaged"){
+      
+      # adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      # adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+    }else if (c == "Disadvantaged"){
       disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
       disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
       disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
       disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+      # disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      # disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
     }else{
       fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
       fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
       fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
       fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+      # fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      # fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
       
     }
   }
@@ -702,6 +759,17 @@ xtable(adv_coef_cdfs)
 xtable(disadv_coef_cdfs)
 xtable(fair_coef_cdfs)
 
+
+## Trying to figure out why I am getting different estimates for Player B effect when using different FE methods in R
+dat <- df_all_cdf %>% filter(Map == 2, District == "EW")
+m1 <- lm(Effort ~ Player + factor(subject.id), data = dat)
+m2 <- plm(Effort ~ Player, data = dat, index = "Period", model = "within")
+m3 <- plm(Effort ~ Player, data = dat, index = "Period", model = "random")
+
+
+summary(m1)
+summary(m2)
+summary(m3)
 ```
 
 
@@ -733,7 +801,7 @@ m3fe <- lm_robust(Effort ~ Player,
                   data = player.role.regression.data)
 summary(m3fe)
 
-texreg(m3fe, include.ci = FALSE)
+texreg(m3fe, include.ci = FALSE) 
 ```
 
 \newpage
