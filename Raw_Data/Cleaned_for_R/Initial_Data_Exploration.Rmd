@@ -377,6 +377,7 @@ To do this, recall the map structures. The Dark Gray district of every map for P
 ```{r ks_tests_all_stage_1, echo=F, fig.height=5, fig.width=10, message=FALSE, warning=FALSE}
 # To compare DG for A and LG for B we need to rename the districts to easily facet wrap them:
 ## STAGE 1 ONLY because that's how we compared district level expenditures
+##
 df_all_cdf <- df_all_cdf %>%
   filter(Period >= 15, Period <= 24) %>%
   mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
@@ -391,7 +392,7 @@ df_all_cdf <- df_all_cdf %>%
          Disadv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "A")|(Map == 5 & District == "ELG" & Player == "B"), "Two Partisan Against",
                                      ifelse((Map == 1 & District == "ELG" & Player == "A")|(Map == 5 & District == "EDG" & Player == "B"), "Three Partisan For",
                                             ifelse((Map == 1 & District == "EW" & Player == "A")|(Map == 5 & District == "EW" & Player == "B"),"One Partisan Against", "Error"))))
-
+##
 
 # Advantaged "One Partisan For"
 ADV.A.one.partisan.for <- subset(df_all_cdf, Advantage == "Adv" & Player == "A" & Adv.District.Names == "One Partisan For")[,"Effort"]
@@ -1857,7 +1858,7 @@ Now, let's look specifically at the effect of map selection.
 
 First, look only at Stage 1 data
 
-```{r, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+```{r Stage_1_regressions, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
 stage_1_regression_data <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
   filter(Period >= 15 & Period <= 24) %>%
   gather(Map, Effort, TE_1:TE_5)
@@ -2113,6 +2114,159 @@ pct.zero
 win.prob.advantaged <- 1 - ((37)/(37+38))^2
 win.prob.advantaged
 ```
+```{r Table_2_District_Stats_02.05.2022, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+##
+district_stats_no_learnig <- df_clean %>%
+  filter(Period >= 15, Period <= 24) %>%
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B", "W for Both Players")),
+          Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv",
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+
+district_stats_no_learnig <- district_stats_no_learnig %>%
+  mutate(Adv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "B")|(Map == 5 & District == "ELG" & Player == "A"), "Two Partisan For",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "B")|(Map == 5 & District == "EDG" & Player == "A"), "Three Partisan Against",
+                                            ifelse((Map == 1 & District == "EW" & Player == "B")|(Map == 5 & District == "EW" & Player == "A"),"One Partisan For", "Error"))),
+
+         Disadv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "A")|(Map == 5 & District == "ELG" & Player == "B"), "Two Partisan Against",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "A")|(Map == 5 & District == "EDG" & Player == "B"), "Three Partisan For",
+                                            ifelse((Map == 1 & District == "EW" & Player == "A")|(Map == 5 & District == "EW" & Player == "B"),"One Partisan Against", "Error"))))
+##
+
+district_stats_no_learnig_table <- district_stats_no_learnig %>%
+  filter(Period >= 15, Period <= 24) %>%
+  mutate(Fairness = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                           ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Map.new = ifelse(Map == 1 |Map == 5, "gerry", Map),
+         EffortWithNAs = ifelse(Effort == 0, NA, Effort),
+         District.compare = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player == "A"), Adv.District.Names,
+                                   ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"), Disadv.District.Names, District.compare))
+         ) %>%
+  group_by(District.compare, Map.new, Fairness) %>%
+  summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
+            avg.positive.bid = round(mean(EffortWithNAs, na.rm = T)),
+            avg.bid          = round(mean(Effort)))
+
+# Manually transfer stats to LaTex table
+district_stats_no_learnig_table
+```
+
+```{r Time_Series_by_district_in_each_map, warning=F, message=F, echo=F, fig.width=10, fig.height=5}
+ts.each.map.each.dist <- df_clean %>% 
+  dplyr::select(Session, Period, subject.id, Player, Map, District, Effort) %>% 
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B", "W for Both Players")),
+          Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv",
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+
+ts.each.map.each.dist <- ts.each.map.each.dist %>%
+  mutate(Adv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "B")|(Map == 5 & District == "ELG" & Player == "A"), "Two Partisan For",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "B")|(Map == 5 & District == "EDG" & Player == "A"), "Three Partisan Against",
+                                            ifelse((Map == 1 & District == "EW" & Player == "B")|(Map == 5 & District == "EW" & Player == "A"),"One Partisan For", "Error"))),
+
+         Disadv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "A")|(Map == 5 & District == "ELG" & Player == "B"), "Two Partisan Against",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "A")|(Map == 5 & District == "EDG" & Player == "B"), "Three Partisan For",
+                                            ifelse((Map == 1 & District == "EW" & Player == "A")|(Map == 5 & District == "EW" & Player == "B"),"One Partisan Against", "Error"))))
+##
+ts.each.map.each.dist <- ts.each.map.each.dist %>%
+  filter(Period >= 15, Period <= 24) %>%
+  mutate(Fairness = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                           ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Map.new = ifelse(Map == 1 |Map == 5, "gerry", Map),
+         EffortWithNAs = ifelse(Effort == 0, NA, Effort),
+         District.compare = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player == "A"), Adv.District.Names,
+                                   ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"), Disadv.District.Names, District.compare))
+         )
+
+# Light grey line for Light Gray district, Dark grey line for Dark gray district, dashed line for white district
+# (we could make background different color to use a white line, but that'd look bad in black and white print)
+ts.each.map.each.dist <- ts.each.map.each.dist %>%
+  mutate(Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Gerry Advantaged",
+                      ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Gerry Disadvantaged",
+                             ifelse(Map == 2, "Symm_1_1",
+                                    ifelse(Map == 3, "Symm_1_3", "Symm_3_1")))),
+         District = ifelse(District == "EDG", "Dark Gray",
+                           ifelse(District == "ELG", "Light Gray", 
+                                  ifelse(District == "EW","White", "Wrong"))))
+
+for.plot.of.ts.each.map.and.district <- ts.each.map.each.dist %>%  filter(Period >= 15, Period <=24) %>% group_by(Period, Map, District.compare) %>% summarise(avg.Effort = mean(Effort))
+
+# For Figure 3 please make the following cosmetic changes: a) make the lines thinner √, b) make white dot dot rather than dash dot √, c) make background white not gray , d) remove the labels from inside the figure and put labels on the panels, e) put just gerrymandered treatments on first row and sym treatments on second row with each row centered, f) Use treatment names as shown in Table 2.
+
+ts.by.map.and.district.gerry.adv <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Gerry Advantaged") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(values=c("dotted", "solid","solid")) +
+  scale_color_manual(values=c('#333333', '#000000','#999999'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.gerry.disadv <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Gerry Disadvantaged") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(name = "District",labels = c("White", "Dark Gray", "Light Gray"), values=c("dotted", "solid","solid")) +
+  scale_color_manual(guide = F,labels = c("White", "Dark Gray", "Light Gray"), values=c('#333333', '#999999','#000000'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.position="right", text = element_text(size = 12)) 
+
+ts.by.map.and.district.sym11 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_1") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#000000', '#333333','#999999'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.sym13 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_3") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#000000', '#333333','#999999'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.sym13.alternative <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_1_3") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#000000', '#333333','#999999'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1), legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+ts.by.map.and.district.sym31 <- for.plot.of.ts.each.map.and.district %>%
+  filter(Map == "Symm_3_1") %>%
+  ggplot(aes(x=Period, y=avg.Effort, group = District.compare, color = District.compare)) +
+  geom_line(aes(linetype=District.compare)) +
+  scale_linetype_manual(values=c("solid", "solid","dotted")) +
+  scale_color_manual(values=c('#000000', '#333333','#999999'))+
+  xlim(1,10) + ylim(0,60) + ylab("Expenditure") +
+  scale_x_discrete(breaks=c(1:10)) +
+  theme_bw() +  #drop a mostly white theme on for contrast
+  theme(panel.border = element_rect(fill=NA, colour = "black", size=1),legend.title = element_blank(), legend.position="none", text = element_text(size = 12))
+
+# saved with width 300 height 175
+ts.by.map.and.district.gerry.adv
+ts.by.map.and.district.gerry.disadv # only one with 300 and 210
+ts.by.map.and.district.sym11
+ts.by.map.and.district.sym13
+#ts.by.map.and.district.sym13.alternative
+ts.by.map.and.district.sym31
+```
 
 
 ## 3
@@ -2143,7 +2297,10 @@ regress_df$Session <- as.character(regress_df$Session)
 # Set the data up as a panel
 d_panel <- pdata.frame(regress_df, index=c("subject.id"))
 # Run the model_four
-model_four <- plm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data=regress_df, index = "subject.id", effect = "individual")
+model_four <- plm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1, data=regress_df, 
+                  index = "subject.id", 
+                  effect = "individual")
+
 summary(model_four, cluster = "Session")
 
 linearHypothesis(model_four, c("Adv + Disadv = 0"))
