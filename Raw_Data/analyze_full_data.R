@@ -78,23 +78,22 @@ df <- df %>% rename(Partner = partner,
                     pELG_5 = pELG5, pELG_4 = pELG4, pELG_3 = pELG3, pELG_2 = pELG2, pELG_1 = pELG1,
                     pEW_5  = pEW5, pEW_4  = pEW4, pEW_3  = pEW3, pEW_2  = pEW2, pEW_1  = pEW1
                     )
-#################################################################
-#################################################################
-#################################################################
-##                  Pick Which Sessions                        ##
-#################################################################
-#################################################################
-#################################################################
-df <- df %>% filter(Session < 9, Period < 30)                  ##
+
+
+## Pick Which Sessions ##########################################
+##                                                             ##
+df <- df %>% filter(                                           ##
+                    #Session < 1,                               ##
+                    Period < 30)                               ##
 peq_response <- df %>%                                         ##
   filter(as.numeric(Period) == 29) %>%                         ##
   dplyr::select(Session, Period, Subject,                      ##
                 PEQ_7, TimeSubmitPEQ7OK, PEQ_8) %>%            ##
   mutate(subject.id =                                          ##
            as.numeric(Session)*8-(8-as.numeric(Subject)))      ##
-#################################################################
-#################################################################
-#################################################################
+# ###############################################################
+
+
 
 ##---------------------------------------------------------------
 ##                  Restructure data                           --
@@ -179,6 +178,7 @@ table_2 <- table_2_data %>%
             avg.bid          = round(mean(Effort))) %>%
   arrange(Fairness)
 #table_2
+
 ##---------------------------------------------------------------
 ##                  Figure 3                                   --
 ##---------------------------------------------------------------
@@ -374,6 +374,22 @@ feols_m1 <- feols(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 | subject.id,
                   data = stage_1_regression_data)
 #modelsummary(feols_m1)
 
+# Hypothesis testing coefficients with NO LEARNING
+linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Adv = Disadv"))
+#linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = Symm_3_1"))
+
+# Hypothesis testing coefficients WITH LEARNING
+linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Adv = Disadv"))
+#linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Symm_1_3 = 10"))
+#linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Symm_3_1 = 0"))
+linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Symm_3_1 = 10"))
+linearHypothesis(map_impact_stage_1_w_learning_and_FE_clustered, c("Symm_1_3 = Symm_3_1"))
+
 ##----------------------------------------------------------------------------------------------
 ##                  Figure 4: Scatter-Plot of Relative Expenditures in Sym3,1                 --
 ##----------------------------------------------------------------------------------------------
@@ -415,6 +431,7 @@ scatter_spread <- map_four_bidding %>%
          med.over.total = median_bid/total.bid,
   ) %>%
   ggplot(aes(x = med.over.total, y = max.over.total))
+
 
 scatter_spread + 
   # geom_count(aes(color = ..n..)) +
@@ -555,6 +572,192 @@ stage3_map + theme(axis.text.x = element_text(size = 20),
 ##-------------------------------------------------------------
 ##            Tables 4, 5, and 6: Effect of Player B         --
 ##-------------------------------------------------------------
+df_all_cdf <- df_clean %>% dplyr::select(Session, Period, subject.id, Player, District, Map, Effort) %>%
+  filter(!grepl("p", District))
 
+df_all_cdf <- df_all_cdf %>%
+  filter(Period >= 15, Period <= 24) %>%
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
+         Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")))
+
+df_all_cdf <- df_all_cdf %>%
+  mutate(Adv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "B")|(Map == 5 & District == "ELG" & Player == "A"), "Two Partisan For",
+                                     ifelse((Map == 1 & District == "ELG" & Player == "B")|(Map == 5 & District == "EDG" & Player == "A"), "Three Partisan Against",
+                                            ifelse((Map == 1 & District == "EW" & Player == "B")|(Map == 5 & District == "EW" & Player == "A"),"One Partisan For", "Error"))),
+         Disadv.District.Names = ifelse((Map == 1 & District == "EDG" & Player == "A")|(Map == 5 & District == "ELG" & Player == "B"), "Two Partisan Against",
+                                        ifelse((Map == 1 & District == "ELG" & Player == "A")|(Map == 5 & District == "EDG" & Player == "B"), "Three Partisan For",
+                                               ifelse((Map == 1 & District == "EW" & Player == "A")|(Map == 5 & District == "EW" & Player == "B"),"One Partisan Against", "Error"))))
+
+df_all_cdf <- df_all_cdf %>%
+  filter(Period >= 15, Period <= 24) %>%
+  mutate(District.compare = ifelse((District == "EDG" & Player == 'A')|(District == "ELG" & Player == 'B'), "DG Player A to LG Player B",
+                                   ifelse((District == "ELG" & Player == 'A')|(District == "EDG" & Player == 'B'), "LG Player A to DG Player B","W for Both Players")),
+         Advantage = ifelse((Player == "A" & Map == 5)|(Player == "B" & Map == 1), "Adv", 
+                            ifelse((Player == "B" & Map == 5)|(Player == "A" & Map == 1),"Dis.adv", "fair")),
+         Renamed.Map = ifelse((Map == 1 & Player == "B")|(Map == 5 & Player =="A"), "Advantaged",
+                              ifelse((Map == 1 & Player == "A")|(Map == 5 & Player == "B"),"Disadvantaged",
+                                     ifelse(Map == 2, "Sym_1_1",
+                                            ifelse(Map == 3, "Sym_1_3", "Sym_3_1")))))
+
+Map <- c("Sym_1_1", "Sym_1_3", "Sym_3_1", "Advantaged", "Disadvantaged")
+adv_coef_cdfs <- data.frame()
+disadv_coef_cdfs <- data.frame()
+fair_coef_cdfs <- data.frame()
+
+adv_coef_cdfs.fixed.effects <- data.frame()
+disadv_coef_cdfs.fixed.effects <- data.frame()
+fair_coef_cdfs.fixed.effects <- data.frame()
+
+adv_coef_cdfs.random.effects <- data.frame()
+disadv_coef_cdfs.random.effects <- data.frame()
+fair_coef_cdfs.random.effects <- data.frame()
+
+
+for(c in Map){
+  temp_df <- df_all_cdf %>% 
+    filter(Renamed.Map == c) %>%
+    mutate(Compare = ifelse(Renamed.Map == "Advantaged", Adv.District.Names,
+                            ifelse(Renamed.Map == "Disadvantaged", Disadv.District.Names,
+                                   District.compare))) %>%
+    dplyr::select(Renamed.Map,
+                  Compare,
+                  Effort,
+                  Player,
+                  subject.id
+    )
+  for(i in unique(temp_df$Compare)){
+    temp_model <- lm(Effort ~ Player, temp_df %>% filter(Compare == i))
+    temp_summary <- summary(temp_model)
+    temp_intercept <- temp_summary[["coefficients"]][1,1]
+    temp_intercept_pvalue <- temp_summary[["coefficients"]][1,4]
+    temp_est <- temp_summary[["coefficients"]][2,1]
+    temp_pvalue <- temp_summary[["coefficients"]][2,4]
+    
+    dat <- df_all_cdf %>% mutate(Compare = ifelse(Renamed.Map == "Advantaged", Adv.District.Names,
+                                                  ifelse(Renamed.Map == "Disadvantaged", Disadv.District.Names,
+                                                         District.compare))) %>% filter(Renamed.Map == c, Compare == i)
+    dat <- pdata.frame(dat, index=c("subject.id")  )
+    # # Random effects; no clustered standard error; probably better way to do this
+    temp_model.RE <- plm( Effort ~ Player , data= dat  , model="between")
+    temp_summary.RE <- summary(temp_model.RE)
+    temp_intercept.RE <- temp_summary.RE[["coefficients"]][1,1]
+    temp_intercept_pvalue.RE <- temp_summary.RE[["coefficients"]][1,4]
+    temp_est.RE <- temp_summary.RE[["coefficients"]][2,1]
+    temp_pvalue.RE <- temp_summary.RE[["coefficients"]][2,4]
+    
+    if(c == "Advantaged"){
+      adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+      # adv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # adv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # adv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # adv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      adv_coef_cdfs.random.effects[c,paste(i,"intercept",sep = " ")] <- temp_intercept.RE
+      adv_coef_cdfs.random.effects[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue.RE
+      adv_coef_cdfs.random.effects[c,paste(i,"estimate",sep = " ")] <- temp_est.RE
+      adv_coef_cdfs.random.effects[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue.RE
+    }else if (c == "Disadvantaged"){
+      disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+      # disadv_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # disadv_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # disadv_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # disadv_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      disadv_coef_cdfs.random.effects[c,paste(i,"intercept",sep = " ")] <- temp_intercept.RE
+      disadv_coef_cdfs.random.effects[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue.RE
+      disadv_coef_cdfs.random.effects[c,paste(i,"estimate",sep = " ")] <- temp_est.RE
+      disadv_coef_cdfs.random.effects[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue.RE
+    }else{
+      fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      
+      # fair_coef_cdfs[c,paste(i,"intercept",sep = " ")] <- temp_intercept
+      # fair_coef_cdfs[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue
+      # fair_coef_cdfs[c,paste(i,"estimate",sep = " ")] <- temp_est
+      # fair_coef_cdfs[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue
+      # 
+      fair_coef_cdfs.random.effects[c,paste(i,"intercept",sep = " ")] <- temp_intercept.RE
+      fair_coef_cdfs.random.effects[c,paste(i,"intercept p-value",sep = " ")] <- temp_intercept_pvalue.RE
+      fair_coef_cdfs.random.effects[c,paste(i,"estimate",sep = " ")] <- temp_est.RE
+      fair_coef_cdfs.random.effects[c,paste(i,"estimate p-value",sep = " ")] <- temp_pvalue.RE
+      
+    }
+  }
+}
+# xtable(adv_coef_cdfs)
+# xtable(disadv_coef_cdfs)
+# xtable(fair_coef_cdfs)
+
+# Table 4
+xtable(adv_coef_cdfs.random.effects)
+
+# Table 5
+xtable(disadv_coef_cdfs.random.effects)
+
+# Table 6
+xtable(fair_coef_cdfs.random.effects)
+
+# Checking model consistency
+dat <- df_all_cdf %>% mutate(Compare = ifelse(Renamed.Map == "Advantaged", Adv.District.Names,
+                                              ifelse(Renamed.Map == "Disadvantaged", Disadv.District.Names,
+                                                     District.compare))) %>% filter(Renamed.Map == "Sym_3_1", Compare == "LG Player A to DG Player B")
+m1 <- lm(Effort ~ Player, data = dat)
+m2 <- lmer(Effort ~ Player + (1 | subject.id), data = dat)
+# m2 <- plm(Effort ~ Player, data = dat, index = c("subject.id","Period"), model = "within")
+# m3 <- plm(Effort ~ Player, data = dat, index = "Period", model = "random")
+z2 <- pdata.frame(dat, index=c("subject.id")  )    
+m3 <- plm( Effort ~ Player , data= z2  , model="between") # matches xtreg , fe
+# m4 <- lme(Effort ~ Player, data = dat, random = pdDiag(~subject.id))
+#summary(m3)
+
+##-------------------------------------
+##            Table 7                --
+##-------------------------------------
+stage_1to2_regression_data <- df %>% dplyr::select(Session, Period, Subject, Player, TE_1:TE_5) %>%
+  filter(Period >= 15 & Period <= 27) %>%
+  gather(Map, Effort, TE_1:TE_5)
+
+stage_1to2_regression_data <- stage_1to2_regression_data %>% mutate(subject.id = as.factor(as.numeric(Session)*8-(8-as.numeric(Subject))),
+                                                                    Player_B = ifelse(Player== "B", 1, 0),
+                                                                    Gerry_B = ifelse(Map == "TE_1", 1, 0),
+                                                                    Symm_1_1 = ifelse(Map == "TE_2", 1, 0),
+                                                                    Symm_1_3 = ifelse(Map == "TE_3", 1, 0),
+                                                                    Symm_3_1 = ifelse(Map == "TE_4", 1, 0),
+                                                                    Gerry_A = ifelse(Map == "TE_5", 1, 0),
+                                                                    Adv = ifelse((Map == "TE_1" & Player == "B")|(Map == "TE_5" & Player == "A"), 1,0),
+                                                                    Disadv = ifelse((Map == "TE_1" & Player == "A")|(Map == "TE_5" & Player == "B"), 1,0),
+                                                                    Stage_2_indicator = ifelse((Period > 24 & Period < 28), 1, 0))
+
+map_impact_on_stage_1to2_no_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, data = stage_1to2_regression_data)
+
+stage_1to2_regression_data_with_learning <- stage_1to2_regression_data %>% filter(Period >= 20)
+map_impact_on_stage_1to2_with_learning_FE <-lm(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, data = stage_1to2_regression_data_with_learning)
+
+stargazer(map_impact_on_stage_1to2_no_learning_FE,
+          map_impact_on_stage_1to2_with_learning_FE,
+          title = "Map Impact with Stage 2 Indicator (FE and Clustereed SE)",
+          column.labels = c("w/out learning", "w/ learning"),
+          label = "Tab:stage_1to2_with_and_without_learning_FE_CSE",
+          omit = "subject.id", single.row = T)
+
+# Must fill in clustered SE manually; can't figure out how to do this in Stargazer
+map_impact_on_stage_1to2_no_learning_FE_cluster <- lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data)
+summary(map_impact_on_stage_1to2_no_learning_FE_cluster)
+#summary(reg,cluster = c("class_id"))
+
+map_impact_on_stage_1to2_with_learning_FE_cluster <- lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data_with_learning)
+summary(map_impact_on_stage_1to2_with_learning_FE_cluster)
 
 
