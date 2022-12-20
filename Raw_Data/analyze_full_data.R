@@ -83,7 +83,7 @@ df <- df %>% rename(Partner = partner,
 ## Pick Which Sessions ##########################################
 ##                                                             ##
 df <- df %>% filter(                                           ##
-                    #Session < 1,                               ##
+                    #Session < 9,                               ## comment out this line if you want all Sessions
                     Period < 30)                               ##
 peq_response <- df %>%                                         ##
   filter(as.numeric(Period) == 29) %>%                         ##
@@ -423,27 +423,27 @@ map_four_bidding %<>%
 map_four_bidding$districts.bid <- factor(map_four_bidding$districts.bid,
                                          levels = c("Zero", "One", "Two", "Three"))
 
-scatter_spread <- map_four_bidding %>%
+scatter_spread_df <- map_four_bidding %>%
   filter(Period <= 24) %>%
   mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)),
          total.bid  = (EDG_4 + ELG_4 + EW_4),
-         max.over.total = max_bid/total.bid,
-         med.over.total = median_bid/total.bid,
-  ) %>%
-  ggplot(aes(x = med.over.total, y = max.over.total))
+         max.over.total = ifelse(total.bid > 0, max_bid/total.bid, 0),
+         med.over.total = ifelse(total.bid > 0, median_bid/total.bid, 0)
+  )
 
-
-scatter_spread + 
-  # geom_count(aes(color = ..n..)) +
+# Save width = 800 and height = 700
+scatter_spread_df %>%
+  ggplot(aes(x = med.over.total, y = max.over.total)) +
   geom_point() +
   labs(x = "Median District Expenditure Relative to Total Expenditure", 
-       y = " Maximum District Expenditure Relative to Total Expenditure") +
-  scale_color_gradient(low="blue", high="red") +
-  xlim(0,0.75) +
-  ylim(0,1) +
-  geom_abline(intercept = 0, slope = 1) +
+                     y = " Maximum District Expenditure Relative to Total Expenditure") +
   geom_jitter(width = 0.025, height = 0.025) +
-  coord_fixed()
+  xlim(-0.1,0.75) +
+  ylim(-0.1,1) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_fixed() +
+  theme_classic()
+
 
 ##----------------------------------------------------------------------------------------------
 ##               Figure 5: Expenditure Distribution in Comp. District of Gerry Map            --
@@ -461,11 +461,13 @@ adv.vs.disadv.cdf <- dissag.df.overlay %>%
   geom_vline(xintercept = 20, linetype = "dashed") + xlim(0,80)+
   guides(size = F)
 
+# Save width = 900 and height = 500
 adv.vs.disadv.cdf + 
   theme(legend.title = element_blank()) +
   xlab("Expenditure in White District") +
   ylab("Cumulative Percentage") +
-  annotate('text', x=10, y=0.75, label = "Theoretical Prediction")
+  annotate('text', x=10, y=0.75, label = "Theoretical Prediction") +
+  theme_classic()
 
 # Adv vs Dis.adv KS test
 ADV.All <- subset(dissag.df.overlay, Advantage == "Adv")[,"Effort"]
@@ -506,8 +508,11 @@ combined.bar <- ggplot(mode_df.v1, aes(x=renamed.mode.map)) +
                             'Advantaged'= parse(text = TeX('$Advantaged$')),
                             'Disadvantaged'= parse(text = TeX('$Disadvantaged$'))))
 
-combined.bar + theme(axis.text.x = element_text(size = 20), 
-                     axis.text.y = element_text(size = 20)) + theme_classic()
+# Save width = 1100 and height = 700
+combined.bar + 
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 20), 
+                     axis.text.y = element_text(size = 20))
 
 ##-------------------------------------------------------------
 ##              Figure 7: Political Leaning and Gerry        --
@@ -523,6 +528,7 @@ gerry_and_politics <- right_join(mode_df, peq_response, copied = F) %>%
 
 #gerry_and_politics$gerry.character[gerry_and_politics$gerry.character=="Did not Gerrymander"] <- "Did Not Gerrymander"
 
+# Save width = 800 and height = 500 
 ggplot(transform(
   gerry_and_politics, gerry.character = factor(gerry.character, 
                                              levels=c("Did Gerrymander", 
@@ -531,10 +537,11 @@ ggplot(transform(
   geom_bar(aes(y = (..count..)/sum(..count..)), width = 0.5, alpha = 1, position="identity") +
   facet_wrap(~gerry.character) + 
   xlim(1,9) + 
+  ylim(0,12) +
   scale_x_continuous(breaks=c(1:9)) +
   labs(x = "Left to Right Political Identification", y = "") +
-  labs(fill = "Do you support gerrymandering?") + ylim(1,9) + 
-  scale_y_continuous(labels=scales::percent) +
+  labs(fill = "Do you support gerrymandering?") + 
+  scale_y_continuous(labels=scales::percent, n.breaks = 15) +
   scale_fill_manual(values = c("No"="gray","Yes"="black")) +
   theme_classic() +
   theme(legend.position = "top")
@@ -565,9 +572,12 @@ stage3_map <- last_period.v1 %>% filter(renamed.map.selection != "No Selection")
                             'Symm_3_1'= parse(text = TeX('$Sym_{3,1}$')),
                             'Gerry_A'= parse(text = TeX('$Gerry_A$')),
                             'Gerry_B'= parse(text = TeX('$Gerry_B$'))))
-stage3_map + theme(axis.text.x = element_text(size = 20), 
-                   axis.text.y = element_text(size = 20)) +
-  theme_classic()
+
+# Save width = 800 and height = 500
+stage3_map + 
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 20), 
+                   axis.text.y = element_text(size = 20))
 
 ##-------------------------------------------------------------
 ##            Tables 4, 5, and 6: Effect of Player B         --
@@ -700,13 +710,10 @@ for(c in Map){
 # xtable(disadv_coef_cdfs)
 # xtable(fair_coef_cdfs)
 
-# Table 4
 xtable(adv_coef_cdfs.random.effects)
 
-# Table 5
 xtable(disadv_coef_cdfs.random.effects)
 
-# Table 6
 xtable(fair_coef_cdfs.random.effects)
 
 # Checking model consistency
