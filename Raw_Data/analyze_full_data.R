@@ -98,7 +98,9 @@ peq_response <- df %>%                                         ##
 ##---------------------------------------------------------------
 ##                  Restructure data                           --
 ##---------------------------------------------------------------
-long_df <- df %>% dplyr::select(Session, Period, Subject, Player, Partner, LType, EDG_5:EW_1, pEDG_5:pEW_1) %>% gather(District, Effort, EDG_5:pEW_1)
+long_df <- df %>% 
+  dplyr::select(Session, Period, Subject, Player, Partner, LType, EDG_5:EW_1, pEDG_5:pEW_1) %>%
+  gather(District, Effort, EDG_5:pEW_1)
 df_clean <- long_df %>% separate(District, c("District", "Map")) %>% filter(!grepl("p", District))
 
 df_clean %<>%
@@ -175,7 +177,8 @@ table_2 <- table_2_data %>%
   group_by(District.compare, Map.new, Fairness) %>%
   summarize(pct.bid.zero = 100*round(sum(is.na(EffortWithNAs))/n(), 2),
             avg.positive.bid = round(mean(EffortWithNAs, na.rm = T)),
-            avg.bid          = round(mean(Effort))) %>%
+            avg.bid          = round(mean(Effort)),
+            stddev = round(sd(Effort))) %>%
   arrange(Fairness)
 #table_2
 
@@ -307,7 +310,7 @@ ts.by.map.and.district.sym31 <- for.plot.of.ts.each.map.and.district %>%
 
 # saved with width 300 height 175
 ts.by.map.and.district.gerry.adv
-ts.by.map.and.district.gerry.disadv # only one with 300 and 210
+ts.by.map.and.district.gerry.disadv # only one with 400 and 175
 ts.by.map.and.district.sym11
 ts.by.map.and.district.sym13
 ts.by.map.and.district.sym13.alternative
@@ -376,7 +379,7 @@ feols_m1 <- feols(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 | subject.id,
 
 # Hypothesis testing coefficients with NO LEARNING
 linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Adv = Disadv"))
-#linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = 0"))
+linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = 0"))
 linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_1_3 = 10"))
 #linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_3_1 = 0"))
 linearHypothesis(map_impact_stage_1_w_FE_clustered, c("Symm_3_1 = 10"))
@@ -442,6 +445,30 @@ scatter_spread_df %>%
   ylim(-0.1,1) +
   geom_abline(intercept = 0, slope = 1) +
   coord_fixed() +
+  theme_classic()
+
+weighted_scatter_spread_df <- map_four_bidding %>%
+  filter(Period <= 24) %>%
+  mutate(subject.id = as.numeric(Session)*8-(8-as.numeric(Subject)),
+         total.bid  = (EDG_4 + ELG_4 + EW_4),
+         max.over.total = ifelse(total.bid > 0, max_bid/total.bid, 0),
+         med.over.total = ifelse(total.bid > 0, median_bid/total.bid, 0)
+  ) %>% group_by(med.over.total, max.over.total) %>%
+  summarise(weight=n())
+
+weighted_scatter_spread <- ggplot(data = weighted_scatter_spread_df, 
+                                  mapping = aes(x=med.over.total, 
+                                                y=max.over.total, 
+                                                size=weight)) +
+  geom_point(alpha = 0.4) +
+  labs(x = "Median District Expenditure Relative to Total Expenditure",
+       y = " Maximum District Expenditure Relative to Total Expenditure") +
+  scale_color_gradient(low="blue", high="red") +
+  xlim(0,1) +
+  ylim(0,1) +
+  geom_abline(intercept = 0, slope = 1) +
+  # geom_jitter(width = 0.025, height = 0.025) +
+  coord_fixed()+
   theme_classic()
 
 
@@ -546,6 +573,21 @@ ggplot(transform(
   theme_classic() +
   theme(legend.position = "top")
 
+##------------------------------------------------------------------------------------
+##              Chi-Squared Test: Map Selection, Political Leaning and Gerry        --
+##------------------------------------------------------------------------------------
+tmp <- table(gerry_and_politics$gerry.character, gerry_and_politics$support_gerry)
+chisq.test(gerry_and_politics$gerry.character, gerry_and_politics$support_gerry,
+           correct = FALSE)
+
+tmp <- table(gerry_and_politics$PEQ_7, gerry_and_politics$support_gerry)
+chisq.test(gerry_and_politics$PEQ_7, gerry_and_politics$support_gerry,
+           correct = FALSE)
+
+tmp <- table(gerry_and_politics$PEQ_7, gerry_and_politics$gerry.character)
+chisq.test(gerry_and_politics$PEQ_7, gerry_and_politics$gerry.character,
+           correct = FALSE)
+
 ##-------------------------------------------------------------
 ##               Figure 8: Map Preference Stage 3            --
 ##-------------------------------------------------------------
@@ -578,6 +620,8 @@ stage3_map +
   theme_classic() +
   theme(axis.text.x = element_text(size = 20), 
                    axis.text.y = element_text(size = 20))
+
+chisq.test(table(last_period.v1$renamed.map.selection))
 
 ##-------------------------------------------------------------
 ##            Tables 4, 5, and 6: Effect of Player B         --
@@ -767,4 +811,23 @@ summary(map_impact_on_stage_1to2_no_learning_FE_cluster)
 map_impact_on_stage_1to2_with_learning_FE_cluster <- lm.cluster(Effort ~ Adv + Disadv + Symm_1_3 + Symm_3_1 + Stage_2_indicator + Stage_2_indicator*Adv + Stage_2_indicator*Disadv + Stage_2_indicator*Symm_1_3 + Stage_2_indicator*Symm_3_1 + subject.id, cluster = "Session", data = stage_1to2_regression_data_with_learning)
 summary(map_impact_on_stage_1to2_with_learning_FE_cluster)
 
+
+##-------------------------------------------------------------
+##            Alt Analyses                                   --
+##-------------------------------------------------------------
+
+non_white_df <- ts.each.map.each.dist %>%
+  dplyr::select(subject.id, Period, District, Map, Effort, Player) %>%
+  filter(District %in% c("Dark Gray", "Light Gray"), Map != "Symm_3_1", Period <= 24) %>%
+  group_by(subject.id, Period, Map) %>%
+  summarise(non_white_effort = sum(Effort))
+
+non_white_df %<>%  
+  mutate(Symm_1_1 = ifelse(Map == "Symm_1_1", 1, 0),
+         Symm_1_3 = ifelse(Map == "Symm_1_3", 1, 0),
+         Adv = ifelse((Map == "Gerry Advantaged"), 1, 0),
+         Disadv = ifelse((Map == "Gerry Disadvantaged"), 1, 0))
+
+reg_non_white <- lm(non_white_effort ~ Symm_1_3 + Adv + Disadv, data = non_white_df)
+summary(reg_non_white)
 
