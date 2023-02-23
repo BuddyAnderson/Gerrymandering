@@ -816,10 +816,12 @@ summary(map_impact_on_stage_1to2_with_learning_FE_cluster)
 ##            Alt Analyses                                   --
 ##-------------------------------------------------------------
 
+
+## Non-white analysis
 non_white_df <- ts.each.map.each.dist %>%
-  dplyr::select(subject.id, Period, District, Map, Effort, Player) %>%
+  dplyr::select(subject.id, Session, Period, District, Map, Effort, Player) %>%
   filter(District %in% c("Dark Gray", "Light Gray"), Map != "Symm_3_1", Period <= 24) %>%
-  group_by(subject.id, Period, Map) %>%
+  group_by(subject.id, Session, Period, Map) %>%
   summarise(non_white_effort = sum(Effort))
 
 non_white_df %<>%  
@@ -828,6 +830,67 @@ non_white_df %<>%
          Adv = ifelse((Map == "Gerry Advantaged"), 1, 0),
          Disadv = ifelse((Map == "Gerry Disadvantaged"), 1, 0))
 
-reg_non_white <- lm(non_white_effort ~ Symm_1_3 + Adv + Disadv, data = non_white_df)
-summary(reg_non_white)
+reg_non_white <- lm(non_white_effort ~ Adv + Disadv + Symm_1_3, 
+                    data = non_white_df)
+
+reg_non_white_w_learning <- lm(non_white_effort ~ Adv + Disadv + Symm_1_3, 
+                               data = non_white_df %>% filter(Period >= 20))
+
+# Make Table
+stargazer(reg_non_white,
+          reg_non_white_w_learning,
+          title = "Map Impact on Stage 1 Non-competitive Bidding",
+          column.labels = c("w/out learning", "w/ learning"),
+          label = "Tab:non_white_stage_1_first_sessions_with_and_without_learning_FE_CSE",
+          omit = "subject.id", single.row = T)
+
+# Add the following clustered standard errors
+reg_non_white_w_FE <- lm.cluster(non_white_effort ~ Adv + Disadv + Symm_1_3 + subject.id,
+                                                cluster = "Session", 
+                                                data = non_white_df)
+summary(reg_non_white_w_FE)
+
+reg_non_white_w_learning_FE <- lm.cluster(non_white_effort ~ Adv + Disadv + Symm_1_3 + subject.id,
+                                 cluster = "Session", 
+                                 data = non_white_df %>% filter(Period >= 20))
+summary(reg_non_white_w_learning_FE)
+
+
+## Modal map analysis
+mode_df_extended <- stage_2 %>% group_by(subject.id, Player) %>% 
+  summarise(consistent = ifelse(length(unique(Map_Selection)) == 1, 1, 0),
+            no_mode = ifelse(length(unique(Map_Selection)) == 3, 1, 0),
+            mode.map = ifelse(length(unique(Map_Selection)) == 3, 
+                              Map_Selection[3],modal(Map_Selection, 
+                                                     ties = 'random')),
+            selection.tie = ifelse(length(unique(Map_Selection)) == 3,1,0))
+
+mode_df_extended %<>%
+  mutate(renamed.mode.map = ifelse((mode.map == 1 & Player == "B")|(mode.map==5 & Player == "A"), "Advantaged",
+                                   ifelse(mode.map==2, "Symm_1_1",
+                                          ifelse(mode.map==3, "Symm_1_3",
+                                                 ifelse(mode.map==4,"Symm_3_1", "Disadvantaged")))))
+
+chose_three_diff <- sum(mode_df_extended$no_mode) ## - Raw number of subjects
+chose_same <- sum(mode_df_extended$consistent)
+
+
+combined.bar <- ggplot(mode_df_extended %>% filter(no_mode == 0), aes(x=renamed.mode.map)) + 
+  geom_bar(aes(y = (..count..)/sum(..count..)),width = 0.5, alpha = 0.5, position="identity", fill = "#666666") +
+  labs(
+    x = "",
+    y = ""
+  ) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_discrete(labels=c('Symm_1_1'= parse(text = TeX('$Sym_{1,1}$')),
+                            'Symm_1_3'= parse(text = TeX('$Sym_{1,3}$')),
+                            'Symm_3_1'= parse(text = TeX('$Sym_{3,1}$')),
+                            'Advantaged'= parse(text = TeX('$Advantaged$')),
+                            'Disadvantaged'= parse(text = TeX('$Disadvantaged$'))))
+
+# Save width = 1100 and height = 700
+combined.bar + 
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 20), 
+        axis.text.y = element_text(size = 20))
 
